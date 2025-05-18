@@ -35,6 +35,12 @@ return new class extends Migration
             $table->longText('payload');
             $table->integer('last_activity')->index();
         });
+        DB::table('users')->insert([
+            'id' => 1,
+            'name' => 'Administrator',
+            'email' => 'admin@mail.com',
+            'password' => Hash::make('123456'),
+        ]);
     }
 
     /**
