@@ -17,14 +17,30 @@ class ProductController extends Controller
     {
         dd(Product::find($productId)); Product::find($productId);
     }
-    public function index()
+    public function index(Request $request)
     {
-        $products = Product::with(['brand', 'category'])
-            ->orderBy('created_at', 'desc')
-            ->paginate(10);
+        $query = Product::with(['brand', 'category']);
+
+        if ($request->filled('search')) {
+            $search = $request->input('search');
+            $query->where(function($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                  ->orWhere('description', 'like', "%{$search}%");
+            });
+        }
+
+        $sortField = $request->input('sort_field', 'created_at');
+        $sortDirection = $request->input('sort_direction', 'desc');
+        $query->orderBy($sortField, $sortDirection);
+
+        $perPage = $request->input('per_page', 10);
+        $perPage = 3;
+        $products = $query->paginate($perPage)
+            ->withQueryString();
 
         return Inertia::render('Admin/Products/Index', [
             'products' => $products,
+            'filters' => $request->only(['search', 'per_page', 'sort_field', 'sort_direction']),
         ]);
     }
 

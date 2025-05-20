@@ -86,9 +86,5 @@ const modules = [Autoplay, Pagination];
                 </div>
             </div>
         </section>
-
-        <!-- <div v-for="category in categories" :key="category.id">
-            <ProductListSection :title="category.name" :seeAllLink="`/danh-muc/${category.slug}`" :products="category.products" />
-        </div> -->
     </CustomerLayout>
 </template>
