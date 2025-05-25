@@ -17,6 +17,8 @@ return new class extends Migration
             $table->bigInteger('price');
             $table->bigInteger('import_price');
             $table->bigInteger('line_price');
+            $table->integer('sold')->default(0);
+            $table->float('rating')->default(5)->nullable();
             $table->integer('stock')->default(0);
             $table->json('images')->nullable();
             $table->boolean('is_featured')->default(false);
@@ -36,7 +38,7 @@ return new class extends Migration
                 'import_price' => 2000000,
                 'line_price' => 2990000,
                 'stock' => 1000,
-                'images' => json_encode(['/products/cpu/i512th.jpg', '/products/pc.png']),
+                'images' => json_encode(['/storage/products/i512th.jpg', '/storage/products/pc.png']),
                 'is_featured' => true,
                 'is_active' => true,
                 'specs' => json_encode([
@@ -61,7 +63,7 @@ return new class extends Migration
                 'import_price' => 7500000,
                 'line_price' => 9990000,
                 'stock' => 500,
-                'images' => json_encode(['/products/cpu/i512th.jpg', '/products/pc.png']),
+                'images' => json_encode(['/storage/products/i512th.jpg', '/storage/products/pc.png']),
                 'is_featured' => true,
                 'is_active' => true,
                 'specs' => json_encode([
@@ -86,7 +88,7 @@ return new class extends Migration
                 'import_price' => 11000000,
                 'line_price' => 14990000,
                 'stock' => 200,
-                'images' => json_encode(['/products/cpu/i512th.jpg', '/products/pc.png']),
+                'images' => json_encode(['/storage/products/i512th.jpg', '/storage/products/pc.png']),
                 'is_featured' => true,
                 'is_active' => true,
                 'specs' => json_encode([
@@ -111,7 +113,7 @@ return new class extends Migration
                 'import_price' => 1500000,
                 'line_price' => 2290000,
                 'stock' => 1500,
-                'images' => json_encode(['/products/cpu/i512th.jpg', '/products/pc.png']),
+                'images' => json_encode(['/storage/products/i512th.jpg', '/storage/products/pc.png']),
                 'is_featured' => false,
                 'is_active' => true,
                 'specs' => json_encode([
@@ -136,7 +138,7 @@ return new class extends Migration
                 'import_price' => 6000000,
                 'line_price' => 7990000,
                 'stock' => 700,
-                'images' => json_encode(['/products/cpu/i512th.jpg', '/products/pc.png']),
+                'images' => json_encode(['/storage/products/i512th.jpg', '/storage/products/pc.png']),
                 'is_featured' => true,
                 'is_active' => true,
                 'specs' => json_encode([
@@ -161,7 +163,7 @@ return new class extends Migration
                 'import_price' => 6800000,
                 'line_price' => 8990000,
                 'stock' => 400,
-                'images' => json_encode(['/products/cpu/i512th.jpg', '/products/pc.png']),
+                'images' => json_encode(['/storage/products/i512th.jpg', '/storage/products/pc.png']),
                 'is_featured' => false,
                 'is_active' => true,
                 'specs' => json_encode([
@@ -186,7 +188,7 @@ return new class extends Migration
                 'import_price' => 10000000,
                 'line_price' => 13990000,
                 'stock' => 150,
-                'images' => json_encode(['/products/cpu/i512th.jpg', '/products/pc.png']),
+                'images' => json_encode(['/storage/products/i512th.jpg', '/storage/products/pc.png']),
                 'is_featured' => true,
                 'is_active' => true,
                 'specs' => json_encode([
@@ -211,7 +213,7 @@ return new class extends Migration
                 'import_price' => 5000000,
                 'line_price' => 6990000,
                 'stock' => 600,
-                'images' => json_encode(['/products/cpu/i512th.jpg', '/products/pc.png']),
+                'images' => json_encode(['/storage/products/i512th.jpg', '/storage/products/pc.png']),
                 'is_featured' => false,
                 'is_active' => true,
                 'specs' => json_encode([
@@ -236,7 +238,7 @@ return new class extends Migration
                 'import_price' => 1900000,
                 'line_price' => 2790000,
                 'stock' => 1200,
-                'images' => json_encode(['/products/cpu/i512th.jpg', '/products/pc.png']),
+                'images' => json_encode(['/storage/products/i512th.jpg', '/storage/products/pc.png']),
                 'is_featured' => false,
                 'is_active' => true,
                 'specs' => json_encode([
@@ -261,7 +263,7 @@ return new class extends Migration
                 'import_price' => 8500000,
                 'line_price' => 11990000,
                 'stock' => 300,
-                'images' => json_encode(['/products/cpu/i512th.jpg', '/products/pc.png']),
+                'images' => json_encode(['/storage/products/i512th.jpg', '/storage/products/pc.png']),
                 'is_featured' => true,
                 'is_active' => true,
                 'specs' => json_encode([

@@ -8,6 +8,11 @@ use Illuminate\Foundation\Inspiring;
 use Illuminate\Http\Request;
 use Inertia\Middleware;
 use Tighten\Ziggy\Ziggy;
+use App\Models\Brand;
+use App\Models\Category;
+use App\Http\Resources\BrandResource;
+use App\Http\Resources\CategoryResource;
+use Illuminate\Support\Facades\Cache;
 
 class HandleInertiaRequests extends Middleware
 {
@@ -39,12 +44,12 @@ class HandleInertiaRequests extends Middleware
      */
     public function share(Request $request): array
     {
-        [$message, $author] = str(Inspiring::quotes()->random())->explode('-');
-
+        // Cache brands and categories for 1 hour
+        $brands = Brand::select('id', 'name', 'slug')->get();
+        $categories = Category::select('id', 'name', 'slug', 'tags', 'icon')->get();
         return [
             ...parent::share($request),
             'name' => config('app.name'),
-            'quote' => ['message' => trim($message), 'author' => trim($author)],
             'auth' => [
                 'user' => $request->user(),
             ],
@@ -56,6 +61,8 @@ class HandleInertiaRequests extends Middleware
             'canLogin' => app('router')->has('login'),
             'canRegister' => app('router')->has('register'),
             'sidebarOpen' => ! $request->hasCookie('sidebar_state') || $request->cookie('sidebar_state') === 'true',
+            'brands' => BrandResource::collection($brands),
+            'categories' => CategoryResource::collection($categories),
         ];
     }
 }

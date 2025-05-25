@@ -2,33 +2,48 @@
 import NavMain from '@/components/NavMain.vue';
 import { Sidebar, SidebarContent } from '@/components/ui/sidebar';
 import { type NavItem } from '@/types';
-import { BookOpen, Folder, FolderTree, LayoutDashboard, Package, ShoppingCart, Tag } from 'lucide-vue-next';
+import {
+    BookOpen,
+    Folder,
+    FolderTree,
+    LayoutDashboard,
+    Package,
+    ShoppingCart,
+    Tag,
+    Percent,
+    HomeIcon
+} from 'lucide-vue-next';
 
 const mainNavItems: NavItem[] = [
     {
-        title: 'Dashboard',
+        title: 'Thống kê',
         href: route('dashboard'),
         icon: LayoutDashboard,
     },
     {
-        title: 'Brands',
-        href: route('admin.brands.index'),
-        icon: Tag,
-    },
-    {
-        title: 'Categories',
+        title: 'Danh mục hàng',
         href: route('admin.categories.index'),
         icon: FolderTree,
     },
     {
-        title: 'Products',
+        title: 'Sản phẩm',
         href: route('admin.products.index'),
         icon: Package,
     },
     {
-        title: 'Orders',
+        title: 'Đơn hàng',
         href: route('admin.orders.index'),
         icon: ShoppingCart,
+    },
+    {
+        title: 'Khuyến mãi',
+        href: route('admin.promotions.index'),
+        icon: Percent,
+    },
+    {
+        title: 'Trang chủ',
+        href: route('home'),
+        icon: HomeIcon,
     },
 ];
 

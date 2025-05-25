@@ -24,9 +24,9 @@ withDefaults(defineProps<Props>(), {
 
         <CustomerHeader :query="query"/>
 
-        <main class="container mx-auto px-4 py-0">
+        <main class="mx-auto py-0">
             <template v-if="breadcrumbs.length > 0">
-                <CustomerBreadcrumbs class="py-2 text-base font-medium" :breadcrumbs="breadcrumbs" />
+                <CustomerBreadcrumbs class="py-2 text-base font-medium mx-auto px-2 container" :breadcrumbs="breadcrumbs" />
             </template>
             <slot />
         </main>

@@ -11,18 +11,40 @@ use Inertia\Inertia;
 
 class CategoryController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $categories = Category::paginate(10);
+        $sortField = $request->input('sort_field', 'name');
+        $sortDirection = $request->input('sort_direction', 'asc');
 
-        $categories->getCollection()->transform(function ($category) {
+        // Validate sort field
+        $allowedSortFields = ['name', 'products_count', 'created_at'];
+        if (!in_array($sortField, $allowedSortFields)) {
+            $sortField = 'name';
+        }
+
+        // Validate sort direction
+        if (!in_array($sortDirection, ['asc', 'desc'])) {
+            $sortDirection = 'asc';
+        }
+
+        $categories = Category::withCount('products')
+            ->orderBy($sortField, $sortDirection)
+            ->get();
+
+        $categories->transform(function ($category) {
             $category->tags = json_decode($category->tags, true);
             return $category;
         });
 
-
         return Inertia::render('Admin/Categories/Index', [
-            'categories' => $categories
+            'categories' => [
+                'data' => $categories,
+                'total' => $categories->count()
+            ],
+            'filters' => [
+                'sort_field' => $sortField,
+                'sort_direction' => $sortDirection
+            ]
         ]);
     }
 
@@ -30,9 +52,11 @@ class CategoryController extends Controller
     {
         $validated = $request->validate([
             'name' => 'required|string|max:255',
+            'tags' => 'nullable|array',
         ]);
 
         $validated['slug'] = Str::slug($validated['name']);
+        $validated['tags'] = json_encode($validated['tags'] ?? []);
 
         Category::create($validated);
 
@@ -43,8 +67,11 @@ class CategoryController extends Controller
     {
         $validated = $request->validate([
             'name' => 'required|string|max:255',
+            'tags' => 'nullable|array',
         ]);
+        
         $validated['slug'] = Str::slug($validated['name']);
+        $validated['tags'] = json_encode($validated['tags'] ?? []);
 
         $category->update($validated);
 
@@ -53,6 +80,10 @@ class CategoryController extends Controller
 
     public function destroy(Category $category)
     {
+        if ($category->products_count > 0) {
+            return back()->with('error', 'Không thể xóa danh mục đang có sản phẩm.');
+        }
+        
         $category->delete();
         return redirect()->back();
     }

@@ -6,31 +6,25 @@ import { type SharedData, type User } from '@/types';
 import { Link, router, usePage } from '@inertiajs/vue3';
 import axios from 'axios';
 import { CircleUser, Menu, MonitorSmartphone, PhoneCall, SearchIcon, ShoppingBag } from 'lucide-vue-next';
-import { computed, onMounted, ref } from 'vue';
+import { computed, ref, onMounted } from 'vue';
 
-const page = usePage<SharedData>();
-const user = page.props.auth.user as User;
+// Define interfaces for the relevant shared props
+interface SharedCartData {
+    count: number;
+    [key: string]: any; // Allow other properties like total, items, products
+}
+
+interface SharedHeaderProps {
+    auth: { user: User | null }; // Assuming user can be null if not logged in
+    cart: { data: SharedCartData };
+    [key: string]: any; // Allow other shared props
+}
+
+const page = usePage<SharedHeaderProps>();
+const user = computed(() => page.props.auth.user);
+const cartCount = computed(() => page.props.cart?.data?.count || 0);
+
 const categories = computed(() => page.props.categories ?? []);
-
-const cart = ref({
-    count: 0,
-});
-
-const fetchCart = async () => {
-    try {
-        const response = await axios.get(route('minicart'));
-        cart.value = {
-            count: response.data.count || 0,
-        };
-    } catch (error) {
-        console.error('Lỗi khi lấy giỏ hàng:', error);
-    }
-};
-
-onMounted(() => {
-    if (user) fetchCart();
-});
-const cartCount = computed(() => cart.value.count);
 
 const stickyHeader = ref<HTMLElement | null>(null);
 const isSticky = ref(false);

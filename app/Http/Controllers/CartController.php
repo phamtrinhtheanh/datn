@@ -2,135 +2,196 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\AddToCartRequest;
-use App\Models\Product;
+use App\Helper\Cart;
+use App\Http\Resources\CartResource;
 use App\Models\CartItem;
-use App\Models\User;
-
-use Illuminate\Support\Facades\Auth;
+use App\Models\Product;
+use Illuminate\Http\Request;
 use Inertia\Inertia;
-use Inertia\Response;
+use Illuminate\Support\Facades\Auth;
 
 class CartController extends Controller
 {
-    public function index(): Response
+    public function view(Request $request)
     {
-        $user = auth()->user();
+        $user = $request->user();
+
         if ($user) {
-            $cartItems = CartItem::where('user_id', $user->id)->get();
+            // For logged-in users, fetch cart items with product data
+            $cartItems = CartItem::where('user_id', $user->id)
+                ->get();
+
+            $products = $cartItems->map(function($item) {
+                // Flatten product data and add quantity
+                $productData = $item->product->toArray();
+                $productData['quantity'] = $item->quantity;
+                // Ensure images are an array of paths
+                if (isset($productData['images']) && is_string($productData['images'])) {
+                     $productData['images'] = json_decode($productData['images'], true);
+                }
+                 $productData['images'] = $productData['images'] ?? [];
+                 // Add cart item ID as 'id' for frontend reference
+                 $productData['cart_item_id'] = $item->id;
+                return $productData;
+            });
+
+            $total = $products->sum(function($product) {
+                return $product['price'] * $product['quantity'];
+            });
+
+        } else {
+            // For guests, get cart data from cookie helper
+            $cartData = Cart::getProductsAndCartItems();
+            $products = $cartData['products']; // This should already be a collection with product data
+
+             $products = $products->map(function($product) {
+                $cartItem = collect($cartData['cartItems'])->firstWhere('product_id', $product->id);
+                 $productData = $product->toArray();
+                 $productData['quantity'] = $cartItem['quantity'] ?? 0;
+
+                 if (isset($productData['images']) && is_string($productData['images'])) {
+                     $productData['images'] = json_decode($productData['images'], true);
+                 }
+                 $productData['images'] = $productData['images'] ?? [];
+                  // No distinct cart item ID for guest items unless stored in cookie
+                 $productData['cart_item_id'] = $product->id; // Use product ID as a temporary key
+                return $productData;
+            });
+
+            $total = $products->sum(function($product) {
+                return $product['price'] * $product['quantity'];
+            });
+
         }
 
+        // Pass data with consistent structure
         return Inertia::render('Cart', [
-            'products' => $cartItems ?? [],
+            'cart' => [
+                'data' => [
+                    'items' => $user ? $cartItems : collect($cartData['cartItems']), // Pass raw cart items for internal logic if needed
+                    'products' => $products->values()->toArray(), // Pass flattened product data with quantity for the table
+                    'total' => $total,
+                    'count' => $products->sum('quantity')
+                ]
+            ],
+            // You might want to pass the user's default address here if it exists
+            // 'userAddress' => $user && $user->address ? $user->address : null,
         ]);
     }
 
-    public function destroy(Request $request)
+    // Assuming you have store, update, delete methods correctly implemented as per previous code
+    // Make sure update and delete use the cart item ID, not product ID, if implemented for logged-in users
+
+    public function store(Request $request, Product $product)
     {
-        $user = Auth::user();
-        $cartItemIds = $request->input('cart_items');
+        $quantity = $request->post('quantity', 1);
+        $user = $request->user();
 
-        $deleted = CartItem::whereIn('id', $cartItemIds)
-            ->whereHas('cart', fn ($q) => $q->where('user_id', $user->id))
-            ->delete();
-
-        if ($deleted === 0) {
-            abort(404, 'Không tìm thấy sản phẩm trong giỏ hàng.');
-        }
-        $cart = $user->cart()->firstOrCreate(['user_id' => $user->id]);
-        $cart->load('items.product');
-        return back()->with([
-            'success' => 'Thêm vào giỏ hàng thành công!',
-            'cart' => $cart->fresh(['items.product'])
-        ]);
-    }
-
-    public function addToCart(AddToCartRequest $request)
-    {
-        $user = Auth::user();
-
-        if (!$user) {
-            session(['url.intended' => url()->current()]);
-            return Inertia::location(route('login'));
-        }
-
-        $cart = $user->cart()->firstOrCreate(['user_id' => $user->id]);
-
-        $productId = $request->input('product_id');
-        $quantity = $request->input('quantity');
-
-        // Kiểm tra sản phẩm đã có trong giỏ chưa
-        $item = $cart->items()->where('product_id', $productId)->first();
-
-        if ($item) {
-            $item->update(['quantity' => $item->quantity + $quantity]);
+        if ($user) {
+            $cartItem = CartItem::where(['user_id' => $user->id, 'product_id' => $product->id])->first();
+            if ($cartItem) {
+                $cartItem->increment('quantity', $quantity);
+            } else {
+                CartItem::create([
+                    'user_id' => $user->id,
+                    'product_id' => $product->id,
+                    'quantity' => $quantity,
+                ]);
+            }
         } else {
-            $product = Product::findOrFail($productId);
-            $cart->items()->create([
-                'product_id' => $productId,
-                'quantity' => $quantity,
-                'price' => $product->price,
-            ]);
+            $cartItems = Cart::getCookieCartItems();
+            $isProductExists = false;
+            foreach ($cartItems as &$item) {
+                if ($item['product_id'] === $product->id) {
+                    $item['quantity'] += $quantity;
+                    $isProductExists = true;
+                    break;
+                }
+            }
+
+            if (!$isProductExists) {
+                $cartItems[] = [
+                    'user_id' => null, // Keep null for guest items
+                    'product_id' => $product->id,
+                    'quantity' => $quantity,
+                    'price' => $product->price,
+                    // Maybe add product details like name, image, etc. here for easier retrieval on frontend
+                ];
+            }
+            Cart::setCookieCartItems($cartItems);
         }
 
-        // Cập nhật tổng
-        $cart->load('items.product');
-        $cart->update([
-            'total' => $cart->items->sum(fn($item) => $item->quantity * $item->price)
-        ]);
-
-        return back()->with([
-            'success' => 'Thêm vào giỏ hàng thành công!',
-            'cart' => $cart->fresh(['items.product'])
-        ]);
+        return redirect()->back()->with('success', 'Sản phẩm đã được thêm vào giỏ hàng.');
     }
 
-    public function update(Request $request, $id)
+     // Update quantity using cart item ID (for logged in) or product ID (for guest/cookie)
+    public function update(Request $request, $product)
     {
-        $user = Auth::user();
-        $quantity = (int) $request->input('quantity');
+        $quantity = $request->integer('quantity');
+        $user = $request->user();
 
-        $item = CartItem::where('id', $id)
-            ->whereHas('cart', fn ($q) => $q->where('user_id', $user->id))
-            ->firstOrFail();
+        if ($quantity < 1) {
+            return response()->json(['message' => 'Số lượng phải lớn hơn 0'], 422);
+        }
 
-        if ($quantity <= 0) {
-            $item->delete();
+        if ($user) {
+            // Find by product ID for logged in user
+            $cartItem = CartItem::where(['user_id' => $user->id, 'product_id' => $product])->firstOrFail();
+            $cartItem->update(['quantity' => $quantity]);
         } else {
-            $item->update(['quantity' => $quantity]);
+            // Find by product ID in cookie items for guest
+            $cartItems = Cart::getCookieCartItems();
+            $updated = false;
+            foreach ($cartItems as &$item) {
+                if ($item['product_id'] == $product) {
+                    $item['quantity'] = $quantity;
+                    $updated = true;
+                    break;
+                }
+            }
+            if ($updated) {
+                Cart::setCookieCartItems($cartItems);
+            }
         }
 
-        // Cập nhật lại tổng tiền giỏ hàng
-        $item->cart->update([
-            'total' => $item->cart->items->sum(fn($i) => $i->quantity * $i->price)
-        ]);
-
-        return back()->with('success', 'Cập nhật giỏ hàng thành công!');
+        return redirect()->back();
     }
 
-    public function miniCart()
+    // Delete item using cart item ID (for logged in) or product ID (for guest/cookie)
+    public function delete(Request $request, $cartItemId)
     {
-        /** @var User $user */
-        $user = Auth::user();
+        $user = $request->user();
 
-        if (!$user) {
-            return [];
+        if ($user) {
+             // Find and delete by cart item ID for logged in user
+            $cartItem = CartItem::where('user_id', $user->id)->findOrFail($cartItemId);
+            $cartItem->delete();
+        } else {
+             // Find and remove by product ID in cookie items for guest
+            $cartItems = Cart::getCookieCartItems();
+            $removed = false;
+             foreach ($cartItems as $index => $item) {
+                // Use product_id for lookup in cookie cart
+                if ($item['product_id'] == $cartItemId) {
+                    array_splice($cartItems, $index, 1);
+                    $removed = true;
+                    break;
+                }
+            }
+            if ($removed) {
+                 Cart::setCookieCartItems($cartItems);
+            }
         }
 
-        $cart = $user->cart()->firstOrCreate(['user_id' => $user->id]);
-        $cartItems = $cart->items()->with('product')->get()->toArray();
-        $items = collect($cartItems);
+         return redirect()->back(303); // Use 303 See Other to force GET request after DELETE
+    }
 
-        $count = $items->sum('quantity');
-
-        $total = $items->reduce(function ($carry, $item) {
-            return $carry + ($item['product']['price'] * $item['quantity']);
-        }, 0);
-
-        return [
-            'count' => $count,
-            'total' => $total,
-        ];
-
+     // Assuming you have a checkout method
+    public function checkout(Request $request)
+    {
+        // Logic for checkout...
+        dd($request->all());
+         // return Inertia::render('Checkout', [...]);
     }
 }
+

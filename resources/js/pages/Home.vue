@@ -1,16 +1,60 @@
 <script setup lang="ts">
 import CustomerLayout from '@/layouts/MainLayout.vue';
-import { Head } from '@inertiajs/vue3';
-import { ref } from 'vue';
-import { Autoplay, Pagination } from 'swiper/modules';
-import { Swiper, SwiperSlide } from 'swiper/vue';
+import { Head, usePage } from '@inertiajs/vue3';
 import 'swiper/css';
 import 'swiper/css/autoplay';
+import 'swiper/css/navigation';
 import 'swiper/css/pagination';
+import { Autoplay, Navigation, Pagination } from 'swiper/modules';
+import { Swiper, SwiperSlide } from 'swiper/vue';
+import { ref } from 'vue';
+import ProductListSection from '@/components/ProductListSection.vue';
 
-const { categories } = defineProps<{
-    categories: Array<any>;
-}>();
+// Define interfaces for the shared props structure
+interface HomeCategory {
+    id: number;
+    name: string;
+    slug: string;
+    tags: string; // Based on the provided structure, tags is a string
+    icon?: string; // Assuming there's an icon field for the image
+}
+
+interface HomeCategoriesProps {
+    data: HomeCategory[];
+    // Add other properties if needed, e.g., total: number;
+}
+
+// Define a simple interface for the product data expected by ProductListSection
+interface HomeProduct {
+    id: number;
+    name: string;
+    slug: string;
+    images: string | Array<string>; // Can be JSON string or array
+    line_price: number;
+    price: number;
+    reviews_count?: number;
+    // Add other necessary product properties if any
+}
+
+// Extend the HomePageProps interface to include the new prop for new arrivals
+interface HomePageProps extends Record<string, any> { // Use Record<string, any> for base shared props
+    categories: HomeCategoriesProps;
+    newArrivals: HomeProduct[]; // Add the new prop for new arrivals
+    // Keep other specific shared props here if needed for type safety in other parts
+    auth: { user: any } | null;
+    brands: { data: any[] };
+    errors: any;
+    name: string;
+    ziggy: any;
+    cart: any;
+    canLogin: boolean;
+    canRegister: boolean;
+    sidebarOpen: boolean;
+}
+
+// Get categories from shared props with type assertion
+const categories = usePage<HomePageProps>().props.categories.data;
+const newArrivals = usePage<HomePageProps>().props.newArrivals;
 
 const bannerImages = ref([
     { id: 1, src: '/banner/main.png', alt: 'Banner 1' },
@@ -18,7 +62,7 @@ const bannerImages = ref([
     { id: 3, src: '/banner/main.png', alt: 'Banner 3' },
 ]);
 
-const modules = [Autoplay, Pagination];
+const modules = [Autoplay, Pagination, Navigation];
 </script>
 
 <style>
@@ -75,7 +119,6 @@ const modules = [Autoplay, Pagination];
                     </Swiper>
                 </div>
 
-                <!-- Container cho 2 banner nhỏ -->
                 <div class="flex h-auto flex-col gap-8 lg:h-full lg:w-1/3">
                     <div class="flex-1 overflow-hidden rounded-xl bg-white dark:bg-gray-900">
                         <img class="h-full w-full object-cover" src="/banner/main.png" alt="small banner 1" />
@@ -84,6 +127,81 @@ const modules = [Autoplay, Pagination];
                         <img class="h-full w-full object-cover" src="/banner/main.png" alt="small banner 2" />
                     </div>
                 </div>
+            </div>
+        </section>
+
+        <!-- Browse by Category Section -->
+        <section class="bg-background my-8 pt-24">
+            <div class="bg-background container mx-auto border-b px-4 pb-12">
+                <div class="mb-6 flex items-center justify-between">
+                    <h2 class="pb-12 text-2xl font-bold text-gray-800 dark:text-gray-200">Danh Mục Hàng</h2>
+                    <div class="flex gap-2">
+                        <div
+                            class="swiper-button-prev-category bg-primary text-primary-foreground flex h-8 w-8 cursor-pointer items-center justify-center rounded-md"
+                        >
+                            <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                fill="none"
+                                viewBox="0 0 24 24"
+                                stroke-width="2"
+                                stroke="currentColor"
+                                class="h-4 w-4"
+                            >
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
+                            </svg>
+                        </div>
+                        <div
+                            class="swiper-button-next-category bg-primary text-primary-foreground flex h-8 w-8 cursor-pointer items-center justify-center rounded-md"
+                        >
+                            <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                fill="none"
+                                viewBox="0 0 24 24"
+                                stroke-width="2"
+                                stroke="currentColor"
+                                class="h-4 w-4"
+                            >
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+                <div class="relative">
+                    <Swiper
+                        :modules="modules"
+                        :slides-per-view="3"
+                        :space-between="20"
+                        :navigation="{
+                            nextEl: '.swiper-button-next-category',
+                            prevEl: '.swiper-button-prev-category',
+                        }"
+                        :breakpoints="{
+                            640: { slidesPerView: 4, spaceBetween: 20 },
+                            768: { slidesPerView: 6, spaceBetween: 30 },
+                            1024: { slidesPerView: 7, spaceBetween: 40 },
+                        }"
+                        class="mySwiper"
+                    >
+                        <SwiperSlide v-for="category in categories" :key="category.id">
+                            <a :href="category.slug" class="group flex flex-col items-center text-center">
+                                <div class="bg-secondary mb-2 flex h-30 w-30 items-center justify-center overflow-hidden rounded-full">
+                                    <img :src="category.icon" :alt="category.name" class="h-full w-full object-contain p-3" />
+                                </div>
+                                <span class="text-primary group-hover:text-primary-500 dark:group-hover:text-primary-400 text-lg font-semibold">{{
+                                    category.name
+                                }}</span>
+                            </a>
+                        </SwiperSlide>
+                    </Swiper>
+                </div>
+            </div>
+            <!-- New Arrivals Section -->
+            <div class="bg-background container mx-auto border-b px-4 pt-16 pb-12">
+                 <ProductListSection
+                    title="Hàng mới về"
+                    :seeAllLink="'#'"
+                    :products="newArrivals"
+                />
             </div>
         </section>
     </CustomerLayout>

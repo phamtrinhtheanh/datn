@@ -13,10 +13,6 @@ use Inertia\Inertia;
 
 class ProductController extends Controller
 {
-    public function show($slug, $productId)
-    {
-        dd(Product::find($productId)); Product::find($productId);
-    }
     public function index(Request $request)
     {
         $query = Product::with(['brand', 'category']);
@@ -31,14 +27,25 @@ class ProductController extends Controller
 
         $sortField = $request->input('sort_field', 'created_at');
         $sortDirection = $request->input('sort_direction', 'desc');
+
+        // Validate sort field
+        $allowedSortFields = ['created_at', 'price', 'sold', 'stock', 'rating'];
+        if (!in_array($sortField, $allowedSortFields)) {
+            $sortField = 'created_at';
+        }
+
+        // Validate sort direction
+        if (!in_array($sortDirection, ['asc', 'desc'])) {
+            $sortDirection = 'desc';
+        }
+
         $query->orderBy($sortField, $sortDirection);
 
         $perPage = $request->input('per_page', 10);
-        $perPage = 3;
         $products = $query->paginate($perPage)
             ->withQueryString();
 
-        return Inertia::render('Admin/Products/Index', [
+        return Inertia::render('Admin/Products/ProductList', [
             'products' => $products,
             'filters' => $request->only(['search', 'per_page', 'sort_field', 'sort_direction']),
         ]);
@@ -46,13 +53,7 @@ class ProductController extends Controller
 
     public function create()
     {
-        $brands = Brand::all();
-        $categories = Category::all();
-
-        return Inertia::render('Admin/Products/Create', [
-            'brands' => $brands,
-            'categories' => $categories,
-        ]);
+        return Inertia::render('Admin/Products/ProductCreate');
     }
 
     public function store(Request $request)
@@ -64,18 +65,19 @@ class ProductController extends Controller
             'import_price' => 'nullable|numeric|min:0',
             'line_price' => 'nullable|numeric|min:0',
             'stock' => 'required|integer|min:0',
-            'image' => 'nullable|image|max:2048',
-            'specs' => 'nullable|array',
-            'is_featured' => 'boolean',
-            'is_active' => 'boolean',
+            'images' => 'nullable|array|min:1|max:4',
+            'main_image_index' => 'nullable|integer|min:0',
+            'specs' => 'nullable|json',
+            'is_featured' => 'required|boolean',
+            'is_active' => 'required|boolean',
             'brand_id' => 'required|exists:brands,id',
             'category_id' => 'required|exists:categories,id',
         ]);
-        if ($request->hasFile('image')) {
-            $validated['image'] = $request->file('image')->store('products', 'public');
-        }
 
-        $validated['specs'] = json_encode($validated['specs']);
+        // Create product with image URLs
+        $validated['images'] = json_encode($validated['images'] ?? []);
+        $validated['specs'] = json_decode($validated['specs'], true);
+        $validated['slug'] = Str::slug($validated['name']);
 
         Product::create($validated);
 
@@ -83,15 +85,17 @@ class ProductController extends Controller
             ->with('success', 'Product created successfully.');
     }
 
+    public function show(Product $product)
+    {
+        return Inertia::render('Admin/Products/ProductDetail', [
+            'product' => $product->load(['brand', 'category']),
+        ]);
+    }
+
     public function edit(Product $product)
     {
-        $brands = Brand::where('is_active', true)->get();
-        $categories = Category::where('is_active', true)->get();
-
-        return Inertia::render('Admin/Products/Edit', [
-            'product' => $product->load(['brand', 'category']),
-            'brands' => $brands,
-            'categories' => $categories,
+        return Inertia::render('Admin/Products/ProductEdit', [
+            'product' => $product->load(['brand', 'category'])
         ]);
     }
 
@@ -101,20 +105,23 @@ class ProductController extends Controller
             'name' => 'required|string|max:255',
             'description' => 'nullable|string',
             'price' => 'required|numeric|min:0',
+            'import_price' => 'nullable|numeric|min:0',
+            'line_price' => 'nullable|numeric|min:0',
             'stock' => 'required|integer|min:0',
-            'image' => 'nullable|image|max:2048',
-            'is_featured' => 'boolean',
-            'is_active' => 'boolean',
+            'images' => 'nullable|array|min:1|max:4',
+            'main_image_index' => 'nullable|integer|min:0',
+            'specs' => 'nullable|json',
+            'is_featured' => 'required|boolean',
+            'is_active' => 'required|boolean',
             'brand_id' => 'required|exists:brands,id',
             'category_id' => 'required|exists:categories,id',
         ]);
 
-        if ($request->hasFile('image')) {
-            if ($product->image) {
-                Storage::disk('public')->delete($product->image);
-            }
-            $validated['image'] = $request->file('image')->store('products', 'public');
-        }
+        // Create product with image URLs
+        $validated['images'] = json_encode($validated['images'] ?? []);
+        $validated['specs'] = json_decode($validated['specs'], true);
+        $validated['slug'] = Str::slug($validated['name']);
+
 
 
         $product->update($validated);
@@ -129,15 +136,29 @@ class ProductController extends Controller
             Storage::disk('public')->delete($product->image);
         }
 
-        if ($product->images) {
-            foreach ($product->images as $image) {
-                Storage::disk('public')->delete($image);
-            }
-        }
-
         $product->delete();
 
         return redirect()->route('admin.products.index')
             ->with('success', 'Product deleted successfully.');
+    }
+
+    public function uploadImages(Request $request)
+    {
+        $request->validate([
+            'images.*' => 'required|image|max:5120' // 5MB max
+        ]);
+
+        $uploadedImages = [];
+        foreach ($request->file('images') as $image) {
+            $path = $image->store('products', 'public');
+            $uploadedImages[] = [
+                'url' => Storage::url($path)
+            ];
+        }
+
+        return response()->json([
+            'success' => true,
+            'images' => $uploadedImages
+        ]);
     }
 }

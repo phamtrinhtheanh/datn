@@ -1,170 +1,223 @@
-<script setup>
-import { Head } from '@inertiajs/vue3';
-import AdminLayout from '@/layouts/AdminLayout.vue';
-import { Button } from '@/components/ui/button';
+<script setup lang="ts">
+import AdminLayout from '@/layouts/AppLayout.vue';
+import { Head, Link } from '@inertiajs/vue3';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
-import { router } from '@inertiajs/vue3';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Button } from '@/components/ui/button';
+import { ArrowLeft } from 'lucide-vue-next';
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from '@/components/ui/select';
 
-const props = defineProps({
+const props = defineProps<{
     order: {
-        type: Object,
-        required: true
-    }
-});
+        id: number;
+        order_number: string;
+        customer_name: string;
+        phone: string;
+        email: string;
+        address: string;
+        notes: string;
+        payment_method: 'vnpay' | 'cod';
+        total: number;
+        status: 'pending' | 'processing' | 'confirmed' | 'completed' | 'cancelled';
+        created_at: string;
+        updated_at: string;
+        user: {
+            id: number;
+            name: string;
+        };
+        items: Array<{
+            id: number;
+            product_id: number;
+            product_name: string;
+            quantity: number;
+            price: number;
+            subtotal: number;
+        }>;
+    };
+}>();
 
 const statusColors = {
     pending: 'bg-yellow-100 text-yellow-800',
     processing: 'bg-blue-100 text-blue-800',
+    confirmed: 'bg-green-100 text-green-800',
     completed: 'bg-green-100 text-green-800',
     cancelled: 'bg-red-100 text-red-800'
 };
 
-const updateStatus = (status) => {
-    router.put(route('admin.orders.update-status', props.order.id), { status });
+const statusLabels = {
+    pending: 'Chờ xử lý',
+    processing: 'Đang xử lý',
+    confirmed: 'Đã xác nhận',
+    completed: 'Hoàn thành',
+    cancelled: 'Đã hủy'
 };
 
-const formatCurrency = (value) => {
-    return new Intl.NumberFormat('vi-VN', {
+const paymentLabels = {
+    vnpay: 'Thanh toán qua VNPay',
+    cod: 'Thanh toán khi nhận hàng'
+};
+
+const formatVND = (price: number) =>
+    new Intl.NumberFormat('vi-VN', {
         style: 'currency',
-        currency: 'VND'
-    }).format(value);
-};
+        currency: 'VND',
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 0,
+    }).format(price);
 
-const formatDate = (date) => {
-    return new Date(date).toLocaleDateString('vi-VN', {
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric'
-    });
+const updateStatus = (status: string) => {
+    router.put(route('admin.orders.status', props.order.id), { status });
 };
 </script>
 
 <template>
-    <Head :title="`Order ${order.order_number}`" />
-
     <AdminLayout>
-        <div class="container mx-auto py-6">
-            <div class="flex justify-between items-center mb-6">
-                <h1 class="text-2xl font-bold">Order #{{ order.order_number }}</h1>
-                <Button variant="outline" @click="router.visit(route('admin.orders.index'))">
-                    Back to Orders
-                </Button>
+        <div class="container px-4 mx-auto py-8">
+            <div class="bg-white rounded-lg shadow">
+                <!-- Header -->
+                <div class="p-6 border-b">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <h2 class="text-xl font-semibold">Chi tiết đơn hàng #{{ order.order_number }}</h2>
+                            <p class="text-gray-500 mt-1">
+                                Đặt lúc {{ new Date(order.created_at).toLocaleString() }}
+                            </p>
+                        </div>
+                        <Select
+                            :value="order.status"
+                            @update:value="updateStatus"
+                        >
+                            <SelectTrigger class="w-[180px]">
+                                <SelectValue>
+                                    <Badge :class="statusColors[order.status]">
+                                        {{ statusLabels[order.status] }}
+                                    </Badge>
+                                </SelectValue>
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="pending">
+                                    <Badge :class="statusColors.pending">
+                                        {{ statusLabels.pending }}
+                                    </Badge>
+                                </SelectItem>
+                                <SelectItem value="processing">
+                                    <Badge :class="statusColors.processing">
+                                        {{ statusLabels.processing }}
+                                    </Badge>
+                                </SelectItem>
+                                <SelectItem value="confirmed">
+                                    <Badge :class="statusColors.confirmed">
+                                        {{ statusLabels.confirmed }}
+                                    </Badge>
+                                </SelectItem>
+                                <SelectItem value="completed">
+                                    <Badge :class="statusColors.completed">
+                                        {{ statusLabels.completed }}
+                                    </Badge>
+                                </SelectItem>
+                                <SelectItem value="cancelled">
+                                    <Badge :class="statusColors.cancelled">
+                                        {{ statusLabels.cancelled }}
+                                    </Badge>
+                                </SelectItem>
+                            </SelectContent>
+                        </Select>
+                    </div>
+                </div>
+
+                <!-- Customer Info -->
+                <div class="p-6 border-b">
+                    <h3 class="text-lg font-semibold mb-4">Thông tin khách hàng</h3>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <p class="text-gray-600">Họ tên</p>
+                            <p class="font-medium">{{ order.customer_name }}</p>
+                        </div>
+                        <div>
+                            <p class="text-gray-600">Số điện thoại</p>
+                            <p class="font-medium">{{ order.phone }}</p>
+                        </div>
+                        <div>
+                            <p class="text-gray-600">Email</p>
+                            <p class="font-medium">{{ order.email }}</p>
+                        </div>
+                        <div>
+                            <p class="text-gray-600">Địa chỉ</p>
+                            <p class="font-medium">{{ order.address }}</p>
+                        </div>
+                        <div>
+                            <p class="text-gray-600">Phương thức thanh toán</p>
+                            <p class="font-medium">{{ paymentLabels[order.payment_method] }}</p>
+                        </div>
+                        <div>
+                            <p class="text-gray-600">Ghi chú</p>
+                            <p class="font-medium">{{ order.notes || 'Không có' }}</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Order Items -->
+                <div class="p-6 border-b">
+                    <h3 class="text-lg font-semibold mb-4">Sản phẩm</h3>
+                    <Table>
+                        <TableHeader>
+                            <TableRow>
+                                <TableHead>Sản phẩm</TableHead>
+                                <TableHead class="text-right">Đơn giá</TableHead>
+                                <TableHead class="text-right">Số lượng</TableHead>
+                                <TableHead class="text-right">Thành tiền</TableHead>
+                            </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                            <TableRow v-for="item in order.items" :key="item.id">
+                                <TableCell>
+                                    <div class="flex items-center gap-4">
+                                        <span>{{ item.product_name }}</span>
+                                    </div>
+                                </TableCell>
+                                <TableCell class="text-right">{{ formatVND(item.price) }}</TableCell>
+                                <TableCell class="text-right">{{ item.quantity }}</TableCell>
+                                <TableCell class="text-right">{{ formatVND(item.subtotal) }}</TableCell>
+                            </TableRow>
+                        </TableBody>
+                    </Table>
+                </div>
+
+                <!-- Order Summary -->
+                <div class="p-6">
+                    <div class="flex justify-end">
+                        <div class="w-64 space-y-2">
+                            <div class="flex justify-between">
+                                <span class="text-gray-600">Tổng tiền hàng:</span>
+                                <span>{{ formatVND(order.total) }}</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-600">Phí vận chuyển:</span>
+                                <span>{{ formatVND(0) }}</span>
+                            </div>
+                            <div class="flex justify-between font-semibold text-lg">
+                                <span>Tổng cộng:</span>
+                                <span class="text-red-600">{{ formatVND(order.total) }}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
 
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <!-- Order Details -->
-                <div class="col-span-2">
-                    <div class="bg-white rounded-lg shadow p-6">
-                        <h2 class="text-lg font-semibold mb-4">Order Details</h2>
-                        <div class="space-y-4">
-                            <div class="grid grid-cols-2 gap-4">
-                                <div>
-                                    <p class="text-sm text-gray-500">Order Status</p>
-                                    <Select
-                                        :model-value="order.status"
-                                        @update:model-value="updateStatus"
-                                    >
-                                        <SelectTrigger class="w-[180px]">
-                                            <SelectValue :placeholder="order.status" />
-                                        </SelectTrigger>
-                                        <SelectContent>
-                                            <SelectItem value="pending">Pending</SelectItem>
-                                            <SelectItem value="processing">Processing</SelectItem>
-                                            <SelectItem value="completed">Completed</SelectItem>
-                                            <SelectItem value="cancelled">Cancelled</SelectItem>
-                                        </SelectContent>
-                                    </Select>
-                                </div>
-                                <div>
-                                    <p class="text-sm text-gray-500">Order Date</p>
-                                    <p>{{ formatDate(order.created_at) }}</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Order Items -->
-                    <div class="bg-white rounded-lg shadow p-6 mt-6">
-                        <h2 class="text-lg font-semibold mb-4">Order Items</h2>
-                        <div class="relative overflow-x-auto">
-                            <Table>
-                                <TableHeader>
-                                    <TableRow>
-                                        <TableHead>Product</TableHead>
-                                        <TableHead>Price</TableHead>
-                                        <TableHead>Quantity</TableHead>
-                                        <TableHead>Subtotal</TableHead>
-                                    </TableRow>
-                                </TableHeader>
-                                <TableBody>
-                                    <TableRow v-for="item in order.items" :key="item.id">
-                                        <TableCell>
-                                            <div class="font-medium">{{ item.product_name }}</div>
-                                        </TableCell>
-                                        <TableCell>{{ formatCurrency(item.price) }}</TableCell>
-                                        <TableCell>{{ item.quantity }}</TableCell>
-                                        <TableCell>{{ formatCurrency(item.subtotal) }}</TableCell>
-                                    </TableRow>
-                                </TableBody>
-                            </Table>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Customer & Summary -->
-                <div class="space-y-6">
-                    <!-- Customer Information -->
-                    <div class="bg-white rounded-lg shadow p-6">
-                        <h2 class="text-lg font-semibold mb-4">Customer Information</h2>
-                        <div class="space-y-2">
-                            <div>
-                                <p class="text-sm text-gray-500">Name</p>
-                                <p>{{ order.customer_name }}</p>
-                            </div>
-                            <div>
-                                <p class="text-sm text-gray-500">Email</p>
-                                <p>{{ order.customer_email }}</p>
-                            </div>
-                            <div>
-                                <p class="text-sm text-gray-500">Phone</p>
-                                <p>{{ order.customer_phone }}</p>
-                            </div>
-                            <div>
-                                <p class="text-sm text-gray-500">Shipping Address</p>
-                                <p>{{ order.shipping_address }}</p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Order Summary -->
-                    <div class="bg-white rounded-lg shadow p-6">
-                        <h2 class="text-lg font-semibold mb-4">Order Summary</h2>
-                        <div class="space-y-2">
-                            <div class="flex justify-between">
-                                <span>Subtotal</span>
-                                <span>{{ formatCurrency(order.subtotal) }}</span>
-                            </div>
-                            <div class="flex justify-between">
-                                <span>Shipping Fee</span>
-                                <span>{{ formatCurrency(order.shipping_fee) }}</span>
-                            </div>
-                            <div class="border-t pt-2 mt-2">
-                                <div class="flex justify-between font-semibold">
-                                    <span>Total</span>
-                                    <span>{{ formatCurrency(order.total) }}</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Notes -->
-                    <div v-if="order.notes" class="bg-white rounded-lg shadow p-6">
-                        <h2 class="text-lg font-semibold mb-4">Notes</h2>
-                        <p class="text-gray-600">{{ order.notes }}</p>
-                    </div>
-                </div>
+            <!-- Back Button -->
+            <div class="mt-6">
+                <Link :href="route('admin.orders.index')">
+                    <Button variant="outline" class="flex items-center gap-2">
+                        <ArrowLeft class="w-4 h-4" />
+                        Quay lại danh sách đơn hàng
+                    </Button>
+                </Link>
             </div>
         </div>
     </AdminLayout>
