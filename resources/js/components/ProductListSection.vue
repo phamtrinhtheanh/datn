@@ -1,11 +1,11 @@
 <script setup lang="ts">
-import { computed } from 'vue';
-import { Card, CardContent, CardFooter } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Link, useForm } from '@inertiajs/vue3';
 import { Button } from '@/components/ui/button';
-import { ShoppingCart } from 'lucide-vue-next';
+import { Card, CardContent, CardFooter } from '@/components/ui/card';
 import { formatVND } from '@/lib/utils';
+import { Link, useForm } from '@inertiajs/vue3';
+import { ChevronRight, ShoppingCart } from 'lucide-vue-next';
+import { computed } from 'vue';
 
 const props = defineProps<{
     title: string;
@@ -48,7 +48,7 @@ const productsWithDiscount = computed(() =>
 
 const addToCart = (productId: number) => {
     const form = useForm({
-        quantity: 1
+        quantity: 1,
     });
 
     form.post(route('cart.add', productId), {
@@ -66,15 +66,18 @@ const addToCart = (productId: number) => {
 <template>
     <div class="space-y-4">
         <!-- Section Header -->
-        <div class="flex items-center justify-between mb-12">
+        <div class="mb-4 flex items-center justify-between">
             <h2 class="text-2xl font-bold text-gray-800 dark:text-gray-100">{{ title }}</h2>
-            <Link :href="seeAllLink" class="text-md font-medium text-primary hover:underline"> Xem tất cả </Link>
+            <Button variant="ghost" class="text-md">
+                Xem thêm
+                <ChevronRight class="inline-block h-4 w-4" />
+            </Button>
         </div>
 
         <div class="grid grid-cols-2 gap-4 md:grid-cols-4 lg:grid-cols-5">
-            <Card v-for="product in productsWithDiscount" :key="product.id" class="group transition-shadow hover:shadow-md py-2">
+            <Card v-for="product in productsWithDiscount" :key="product.id" class="group gap-0 py-2 transition-shadow hover:shadow-md">
                 <Link :href="`/${product.slug}`" class="block">
-                    <div class="relative rounded-lg mx-2 mb-4 overflow-hidden">
+                    <div class="relative mx-2 mb-2 overflow-hidden rounded-lg border">
                         <img
                             :src="product.images[0]"
                             :alt="product.name"
@@ -82,18 +85,18 @@ const addToCart = (productId: number) => {
                         />
                     </div>
 
-                    <CardContent class="p-4 pb-2 pt-0">
-                        <h3 class="mb-3 line-clamp-2 min-h-[3em] text-base font-medium text-gray-800 dark:text-gray-100">
+                    <CardContent class="p-4 pt-0 pb-2">
+                        <h3 class="line-clamp-2 min-h-[3em] text-base font-medium">
                             {{ product.name }}
                         </h3>
 
-                        <p v-if="product.discount > 0" class="text-sm text-gray-500">
+                        <p v-if="product.discount > 0" class="text-sm text-muted-foreground">
                             <span class="line-through">
                                 {{ formatVND(product.line_price) }}
                             </span>
                             &nbsp;
                             <span>
-                                <Badge variant="outline" class="border-red-700 text-red-700"> -{{ product.discount }}% </Badge>
+                                <Badge variant="outline"> -{{ product.discount }}% </Badge>
                             </span>
                         </p>
 
@@ -101,12 +104,11 @@ const addToCart = (productId: number) => {
                             {{ formatVND(product.price) }}
                         </p>
                     </CardContent>
-
                 </Link>
 
-                <CardFooter class="flex justify-between p-4 pt-0">
-                    <p class="text-sm font-semibold text-green-500">Còn hàng</p>
-                    <Button @click="addToCart(product.id)" class="h-10 w-10 rounded-full bg-red-700">
+                <CardFooter class="flex justify-between px-4 pb-1 pt-0">
+                    <p class="text-sm font-semibold">Còn hàng</p>
+                    <Button @click="addToCart(product.id)" class="h-10 w-10 rounded-full">
                         <ShoppingCart class="h-4 w-4 text-white" />
                     </Button>
                 </CardFooter>

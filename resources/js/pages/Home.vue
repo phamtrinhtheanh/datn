@@ -1,6 +1,8 @@
 <script setup lang="ts">
+import ProductListSection from '@/components/ProductListSection.vue';
 import CustomerLayout from '@/layouts/MainLayout.vue';
 import { Head, usePage } from '@inertiajs/vue3';
+import { ChevronRight, ChevronLeft } from 'lucide-vue-next';
 import 'swiper/css';
 import 'swiper/css/autoplay';
 import 'swiper/css/navigation';
@@ -8,9 +10,7 @@ import 'swiper/css/pagination';
 import { Autoplay, Navigation, Pagination } from 'swiper/modules';
 import { Swiper, SwiperSlide } from 'swiper/vue';
 import { ref } from 'vue';
-import ProductListSection from '@/components/ProductListSection.vue';
 
-// Define interfaces for the shared props structure
 interface HomeCategory {
     id: number;
     name: string;
@@ -37,7 +37,8 @@ interface HomeProduct {
 }
 
 // Extend the HomePageProps interface to include the new prop for new arrivals
-interface HomePageProps extends Record<string, any> { // Use Record<string, any> for base shared props
+interface HomePageProps extends Record<string, any> {
+    // Use Record<string, any> for base shared props
     categories: HomeCategoriesProps;
     newArrivals: HomeProduct[]; // Add the new prop for new arrivals
     // Keep other specific shared props here if needed for type safety in other parts
@@ -96,10 +97,9 @@ const modules = [Autoplay, Pagination, Navigation];
 <template>
     <Head title="The Anh Computer" />
     <CustomerLayout>
-        <section class="container mx-auto mt-12 px-4">
-            <div class="flex flex-col gap-4 md:gap-6 lg:flex-row lg:gap-8">
-                <!-- Banner lớn với Swiper -->
-                <div class="relative aspect-[3/2] overflow-hidden rounded-xl lg:w-2/3">
+        <section class="container mx-auto mt-4 px-4">
+            <div class="flex flex-col gap-4 md:gap-6 lg:flex-row lg:gap-4">
+                <div class="relative aspect-[5/2] overflow-hidden rounded-xl lg:w-2/3">
                     <Swiper
                         :modules="modules"
                         :autoplay="{
@@ -119,7 +119,7 @@ const modules = [Autoplay, Pagination, Navigation];
                     </Swiper>
                 </div>
 
-                <div class="flex h-auto flex-col gap-8 lg:h-full lg:w-1/3">
+                <div class="flex h-auto flex-col gap-4 lg:h-full lg:w-1/3">
                     <div class="flex-1 overflow-hidden rounded-xl bg-white dark:bg-gray-900">
                         <img class="h-full w-full object-cover" src="/banner/main.png" alt="small banner 1" />
                     </div>
@@ -130,57 +130,43 @@ const modules = [Autoplay, Pagination, Navigation];
             </div>
         </section>
 
-        <!-- Browse by Category Section -->
-        <section class="bg-background my-8 pt-24">
-            <div class="bg-background container mx-auto border-b px-4 pb-12">
+        <section class="bg-background my-4 pt-8">
+            <div class="bg-background container mx-auto border-b px-4 pb-4">
                 <div class="mb-6 flex items-center justify-between">
-                    <h2 class="pb-12 text-2xl font-bold text-gray-800 dark:text-gray-200">Danh Mục Hàng</h2>
+                    <h2 class="text-2xl font-bold text-gray-800 dark:text-gray-200">Danh Mục Hàng</h2>
                     <div class="flex gap-2">
                         <div
                             class="swiper-button-prev-category bg-primary text-primary-foreground flex h-8 w-8 cursor-pointer items-center justify-center rounded-md"
                         >
-                            <svg
-                                xmlns="http://www.w3.org/2000/svg"
-                                fill="none"
-                                viewBox="0 0 24 24"
-                                stroke-width="2"
-                                stroke="currentColor"
-                                class="h-4 w-4"
-                            >
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
-                            </svg>
+                            <ChevronLeft />
                         </div>
                         <div
                             class="swiper-button-next-category bg-primary text-primary-foreground flex h-8 w-8 cursor-pointer items-center justify-center rounded-md"
                         >
-                            <svg
-                                xmlns="http://www.w3.org/2000/svg"
-                                fill="none"
-                                viewBox="0 0 24 24"
-                                stroke-width="2"
-                                stroke="currentColor"
-                                class="h-4 w-4"
-                            >
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
-                            </svg>
+                            <ChevronRight />
                         </div>
                     </div>
                 </div>
                 <div class="relative">
                     <Swiper
-                        :modules="modules"
+                        :modules="[Navigation]"
                         :slides-per-view="3"
-                        :space-between="20"
-                        :navigation="{
-                            nextEl: '.swiper-button-next-category',
-                            prevEl: '.swiper-button-prev-category',
-                        }"
+                        :space-between="10"
+                        :loop="true"
+                        :slides-offset-before="0"
+                        :slides-offset-after="0"
+                        v-bind:navigation="
+                            {
+                                nextEl: '.swiper-button-next-category',
+                                prevEl: '.swiper-button-prev-category',
+                            } as any
+                        "
                         :breakpoints="{
-                            640: { slidesPerView: 4, spaceBetween: 20 },
-                            768: { slidesPerView: 6, spaceBetween: 30 },
-                            1024: { slidesPerView: 7, spaceBetween: 40 },
+                            640: { slidesPerView: 4, spaceBetween: 0 },
+                            768: { slidesPerView: 6, spaceBetween: 0 },
+                            1024: { slidesPerView: 8, spaceBetween: 0 },
                         }"
-                        class="mySwiper"
+                        class="mySwiper swiper-fix-padding"
                     >
                         <SwiperSlide v-for="category in categories" :key="category.id">
                             <a :href="category.slug" class="group flex flex-col items-center text-center">
@@ -195,13 +181,8 @@ const modules = [Autoplay, Pagination, Navigation];
                     </Swiper>
                 </div>
             </div>
-            <!-- New Arrivals Section -->
-            <div class="bg-background container mx-auto border-b px-4 pt-16 pb-12">
-                 <ProductListSection
-                    title="Hàng mới về"
-                    :seeAllLink="'#'"
-                    :products="newArrivals"
-                />
+            <div class="bg-background container mx-auto border-b px-4 pt-8 pb-12">
+                <ProductListSection title="Hàng mới về" :seeAllLink="'#'" :products="newArrivals" />
             </div>
         </section>
     </CustomerLayout>

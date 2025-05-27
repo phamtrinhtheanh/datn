@@ -21,18 +21,18 @@ return new class extends Migration {
 
         // Danh sách danh mục kèm icon (PascalCase từ Lucide)
         $categories = [
-            'Bộ PC' => ['icon' => 'https://nzxt.com/assets/cms/34299/1681919351-h7-flow-rgb-hero-black.png?auto=format&fit=crop&h=1000&w=1000', 'tags' => []],
-            'Mainboard' => ['icon' => 'https://nzxt.com/assets/cms/34299/1681919351-h7-flow-rgb-hero-black.png?auto=format&fit=crop&h=1000&w=1000', 'tags' => ['socket', 'ram_gen', 'form_factor']],
-            'CPU' => ['icon' => 'https://nzxt.com/assets/cms/34299/1681919351-h7-flow-rgb-hero-black.png?auto=format&fit=crop&h=1000&w=1000', 'tags' => ['socket', 'ram_gen']],
-            'RAM' => ['icon' => 'https://nzxt.com/assets/cms/34299/1681919351-h7-flow-rgb-hero-black.png?auto=format&fit=crop&h=1000&w=1000', 'tags' => ['ram_gen']],
-            'VGA' => ['icon' => 'https://nzxt.com/assets/cms/34299/1681919351-h7-flow-rgb-hero-black.png?auto=format&fit=crop&h=1000&w=1000', 'tags' => []],
-            'Ổ cứng' => ['icon' => 'https://nzxt.com/assets/cms/34299/1681919351-h7-flow-rgb-hero-black.png?auto=format&fit=crop&h=1000&w=1000', 'tags' => []],
-            'PSU' => ['icon' => 'https://nzxt.com/assets/cms/34299/1681919351-h7-flow-rgb-hero-black.png?auto=format&fit=crop&h=1000&w=1000', 'tags' => []],
-            'CASE' => ['icon' => 'https://nzxt.com/assets/cms/34299/1681919351-h7-flow-rgb-hero-black.png?auto=format&fit=crop&h=1000&w=1000', 'tags' => ['form_factor']],
-            'Tản nhiệt' => ['icon' => 'https://nzxt.com/assets/cms/34299/1681919351-h7-flow-rgb-hero-black.png?auto=format&fit=crop&h=1000&w=1000', 'tags' => []],
-            'Màn hình' => ['icon' => 'https://nzxt.com/assets/cms/34299/1681919351-h7-flow-rgb-hero-black.png?auto=format&fit=crop&h=1000&w=1000', 'tags' => []],
-            'Gaming gear' => ['icon' => 'https://nzxt.com/assets/cms/34299/1681919351-h7-flow-rgb-hero-black.png?auto=format&fit=crop&h=1000&w=1000', 'tags' => []],
-            'Thanh lý' => ['icon' => 'https://nzxt.com/assets/cms/34299/1681919351-h7-flow-rgb-hero-black.png?auto=format&fit=crop&h=1000&w=1000', 'tags' => []],
+            'Bộ PC' => ['icon' => '/categories/bopc.png', 'tags' => []],
+            'Mainboard' => ['icon' => '/categories/mainboard.png', 'tags' => ['socket', 'ram_gen', 'form_factor']],
+            'CPU' => ['icon' => '/categories/cpu.png', 'tags' => ['socket', 'ram_gen']],
+            'RAM' => ['icon' => '/categories/ram.png', 'tags' => ['ram_gen']],
+            'VGA' => ['icon' => '/categories/vga.png', 'tags' => []],
+            'Ổ cứng' => ['icon' => '/categories/ssd.png', 'tags' => []],
+            'PSU' => ['icon' => '/categories/psu.png', 'tags' => []],
+            'CASE' => ['icon' => '/categories/case.png', 'tags' => ['form_factor']],
+            'Tản nhiệt' => ['icon' => '/categories/cooler.png', 'tags' => []],
+            'Màn hình' => ['icon' => '/categories/monitor.png', 'tags' => []],
+            'Gaming gear' => ['icon' => '/categories/gear.png', 'tags' => []],
+            'Thanh lý' => ['icon' => '/categories/access.png', 'tags' => []],
         ];
 
         $data = [];
