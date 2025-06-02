@@ -13,6 +13,7 @@ use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\FileUploadController;
+use App\Http\Controllers\ReviewController;
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::middleware(['auth', \App\Http\Middleware\AdminMiddleware::class])->group(function () {
@@ -74,6 +75,9 @@ Route::middleware(['auth'])->group(function () {
         ]);
     })->name('vnpay.processing');
     Route::get('/return-vnpay', [OrderController::class, 'handleReturn'])->name('payment.return');
+
+    Route::post('/reviews', [ReviewController::class, 'store'])->name('reviews.store');
+    Route::get('/products/{product}/reviews', [ReviewController::class, 'getProductReviews'])->name('reviews.product');
 });
 
 Route::get('{text}-p.{id}', [\App\Http\Controllers\ProductController::class, 'product'])

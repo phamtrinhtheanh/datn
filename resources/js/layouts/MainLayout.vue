@@ -4,6 +4,7 @@ import CustomerFooter from '@/components/main/CustomerFooter.vue';
 import { Head, usePage } from '@inertiajs/vue3';
 import type { BreadcrumbItemType } from '@/types';
 import CustomerBreadcrumbs from '@/components/CustomerBreadcrumbs.vue';
+import { Toaster } from '@/components/ui/sonner'
 
 // Force light mode
 usePage().props.theme = 'light';
@@ -21,6 +22,8 @@ withDefaults(defineProps<Props>(), {
 <template>
     <div class="bg-secondary dark:bg-secondary/20">
         <Head :title="'Trang chủ'" />
+
+        <Toaster richColors position="top-right" />
 
         <CustomerHeader :query="query"/>
 
