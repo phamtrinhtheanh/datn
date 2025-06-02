@@ -19,7 +19,6 @@ return new class extends Migration {
             $table->timestamps();
         });
 
-        // Danh sách danh mục kèm icon (PascalCase từ Lucide)
         $categories = [
             'Bộ PC' => ['icon' => '/categories/bopc.png', 'tags' => []],
             'Mainboard' => ['icon' => '/categories/mainboard.png', 'tags' => ['socket', 'ram_gen', 'form_factor']],
@@ -29,19 +28,18 @@ return new class extends Migration {
             'Ổ cứng' => ['icon' => '/categories/ssd.png', 'tags' => []],
             'PSU' => ['icon' => '/categories/psu.png', 'tags' => []],
             'CASE' => ['icon' => '/categories/case.png', 'tags' => ['form_factor']],
-            'Tản nhiệt' => ['icon' => '/categories/cooler.png', 'tags' => []],
+//            'Tản nhiệt' => ['icon' => '/categories/cooler.png', 'tags' => []],
             'Màn hình' => ['icon' => '/categories/monitor.png', 'tags' => []],
             'Gaming gear' => ['icon' => '/categories/gear.png', 'tags' => []],
-            'Thanh lý' => ['icon' => '/categories/access.png', 'tags' => []],
+//            'Thanh lý' => ['icon' => '/categories/access.png', 'tags' => []],
         ];
 
         $data = [];
-
+        $i = 0;
         foreach ($categories as $name => $meta) {
-            $i = 1;
             $data[] = [
                 'name' => $name,
-                'slug' => Str::slug($name). '-c.' . $i++,
+                'slug' => Str::slug($name). '-c.' . ++$i,
                 'icon' => $meta['icon'],
                 'tags' => json_encode($meta['tags']),
                 'created_at' => now(),

@@ -78,21 +78,21 @@ const pageLinks = computed(() => {
     <Head title="The Anh Computer" />
     <CustomerLayout :breadcrumbs="breadcrumbs" :query="query">
         <div class="container mx-auto space-y-4 px-4">
-            <div class="flex rounded-lg bg-white p-4">
-                <div class="flex items-center gap-3">
-                    <Label class="text-base font-bold">Sắp xếp theo:</Label>
-                    <Select v-model="sortBy">
-                        <SelectTrigger class="w-[180px]">
-                            <SelectValue :placeholder="sortOptions.find((opt) => opt.value === sortBy)?.label || 'Chọn sắp xếp'" />
-                        </SelectTrigger>
-                        <SelectContent>
-                            <SelectItem v-for="option in sortOptions" :key="option.value" :value="option.value">
-                                {{ option.label }}
-                            </SelectItem>
-                        </SelectContent>
-                    </Select>
-                </div>
-            </div>
+<!--            <div class="flex rounded-lg bg-white p-4">-->
+<!--                <div class="flex items-center gap-3">-->
+<!--                    <Label class="text-base font-bold">Sắp xếp theo:</Label>-->
+<!--                    <Select v-model="sortBy">-->
+<!--                        <SelectTrigger class="w-[180px]">-->
+<!--                            <SelectValue :placeholder="sortOptions.find((opt) => opt.value === sortBy)?.label || 'Chọn sắp xếp'" />-->
+<!--                        </SelectTrigger>-->
+<!--                        <SelectContent>-->
+<!--                            <SelectItem v-for="option in sortOptions" :key="option.value" :value="option.value">-->
+<!--                                {{ option.label }}-->
+<!--                            </SelectItem>-->
+<!--                        </SelectContent>-->
+<!--                    </Select>-->
+<!--                </div>-->
+<!--            </div>-->
 
             <ProductSearchSection :products="props.products.data" />
 

@@ -17,7 +17,7 @@ class ProductController extends Controller
         $products = Category::findOrFail($categoryId)
             ->products()
             ->with('category')
-            ->paginate(5)
+            ->paginate(10)
             ->appends(request()->query());
 
         return Inertia::render('ProductSearch', [

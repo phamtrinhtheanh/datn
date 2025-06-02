@@ -4,7 +4,7 @@ import { Head, useForm, usePage } from '@inertiajs/vue3';
 import type { BreadcrumbItem, SharedData, User } from '@/types';
 import CustomerLayout from '@/layouts/MainLayout.vue';
 import { formatVND } from '@/lib/utils';
-import { HardDrive, Package, PhoneCall, Settings, Truck, ShoppingCartIcon, IdCard } from 'lucide-vue-next';
+import { HardDrive, Package, PhoneCall, Truck } from 'lucide-vue-next';
 
 import StarRating from 'vue3-star-ratings';
 import { Swiper, SwiperSlide } from 'swiper/vue';
@@ -13,7 +13,6 @@ import 'swiper/css';
 import 'swiper/css/free-mode';
 import 'swiper/css/navigation';
 import 'swiper/css/thumbs';
-import axios from 'axios';
 import { Button } from '@/components/ui/button';
 
 const { product } = defineProps<{ product: any }>();
@@ -26,13 +25,15 @@ const decreaseQuantity = () => {
     if (quantity.value > 1) quantity.value--;
 };
 
-const snakeToTitleCase = (str: string) =>
-    str
-        ? str
-              .split('_')
-              .map((s) => s[0].toUpperCase() + s.slice(1).toLowerCase())
-              .join(' ')
-        : '';
+
+const snakeToTitleCase = (str: string | null | undefined) => {
+    console.log(product.specs);
+    if (!str) return '';
+    return str
+        .split('_')
+        .map((s) => s.charAt(0).toUpperCase() + s.slice(1).toLowerCase())
+        .join(' ');
+}
 
 const images = computed(() => {
     try {
@@ -57,10 +58,9 @@ watchEffect(() => {
     form.quantity = quantity.value;
 });
 
-
 const addToCart = (productId: number) => {
     const form = useForm({
-        quantity: 1
+        quantity: 1,
     });
 
     form.post(route('cart.add', productId), {
@@ -127,7 +127,6 @@ const breadcrumbs: BreadcrumbItem[] = [
                             </Swiper>
                         </div>
                     </div>
-
                 </div>
 
                 <!-- Product Info Section -->
@@ -164,13 +163,13 @@ const breadcrumbs: BreadcrumbItem[] = [
                                 </div>
                             </div>
                         </div>
-<!--                        <div class="mb-4 flex flex-wrap gap-3 lg:w-2/3">-->
-<!--                            <button class="rounded-md border-2 border-red-700 bg-white px-4 py-3 font-medium text-red-600 hover:shadow-lg">-->
-<!--                                <span class="flex items-center justify-center font-extrabold">-->
-<!--                                    <Settings class="mr-2 h-6 w-6" />Build PC với sản phẩm này</span-->
-<!--                                >-->
-<!--                            </button>-->
-<!--                        </div>-->
+                        <!--                        <div class="mb-4 flex flex-wrap gap-3 lg:w-2/3">-->
+                        <!--                            <button class="rounded-md border-2 border-red-700 bg-white px-4 py-3 font-medium text-red-600 hover:shadow-lg">-->
+                        <!--                                <span class="flex items-center justify-center font-extrabold">-->
+                        <!--                                    <Settings class="mr-2 h-6 w-6" />Build PC với sản phẩm này</span-->
+                        <!--                                >-->
+                        <!--                            </button>-->
+                        <!--                        </div>-->
                         <div class="mb-6 flex items-center">
                             <span class="mr-4 text-sm font-medium text-gray-900">Số lượng:</span>
                             <div class="flex items-center rounded-md border border-gray-300">
@@ -187,60 +186,58 @@ const breadcrumbs: BreadcrumbItem[] = [
                         </div>
 
                         <div class="mb-4 flex flex-wrap gap-3">
-                            <Button class="flex-1 rounded-md  h-16 py-6 font-medium flex-col" @click="addToCart(product.id)">
+                            <Button class="h-16 flex-1 flex-col rounded-md py-6 font-medium" @click="addToCart(product.id)">
                                 <span class="flex items-center justify-center font-extrabold">Thêm vào giỏ hàng</span>
                                 <span>Giao nhanh, miễn phí toàn quốc</span>
                             </Button>
                         </div>
                         <ul class="grid grid-cols-2 gap-4 p-6">
                             <li class="flex items-center gap-2">
-                            <span class="flex h-10 w-10 items-center justify-center rounded-full bg-primary">
-                                <Truck class="text-white" />
-                            </span>
+                                <span class="bg-primary flex h-10 w-10 items-center justify-center rounded-full">
+                                    <Truck class="text-white" />
+                                </span>
                                 <span>Chính sách bảo hành</span>
                             </li>
                             <li class="flex items-center gap-2">
-                            <span class="flex h-10 w-10 items-center justify-center rounded-full bg-primary">
-                                <Package class="text-white" />
-                            </span>
+                                <span class="bg-primary flex h-10 w-10 items-center justify-center rounded-full">
+                                    <Package class="text-white" />
+                                </span>
                                 <span>Bảo hành 36 tháng</span>
                             </li>
                             <li class="flex items-center gap-2">
-                            <span class="flex h-10 w-10 items-center justify-center rounded-full bg-primary">
-                                <HardDrive class="text-white" />
-                            </span>
+                                <span class="bg-primary flex h-10 w-10 items-center justify-center rounded-full">
+                                    <HardDrive class="text-white" />
+                                </span>
                                 <span>Giá tốt nhất</span>
                             </li>
                             <li class="flex items-center gap-2">
-                            <span class="flex h-10 w-10 items-center justify-center rounded-full bg-primary">
-                                <PhoneCall class="text-white" />
-                            </span>
+                                <span class="bg-primary flex h-10 w-10 items-center justify-center rounded-full">
+                                    <PhoneCall class="text-white" />
+                                </span>
                                 <span>Mua hàng trực tuyến</span>
                             </li>
                         </ul>
                     </div>
                 </div>
-
             </div>
-
         </div>
-        <div class="mt-8 rounded-xl px-4 container mx-auto">
+        <div class="container mx-auto mt-8 rounded-xl px-4">
             <div class="bg-background px-4 py-2">
                 <div class="">
                     <nav class="-mb-px flex space-x-8">
-                        <a href="#" class="whitespace-nowrap border-b-2 border-blue-500 px-1 py-4 text-sm font-semibold text-xl"> Mô tả sản phẩm </a>
-<!--                        <a-->
-<!--                            href="#"-->
-<!--                            class="whitespace-nowrap border-b-2 border-transparent px-1 py-4 text-sm font-medium text-gray-500 hover:border-gray-300 hover:text-gray-700"-->
-<!--                        >-->
-<!--                            Thông số kỹ thuật-->
-<!--                        </a>-->
-<!--                        <a-->
-<!--                            href="#"-->
-<!--                            class="whitespace-nowrap border-b-2 border-transparent px-1 py-4 text-sm font-medium text-gray-500 hover:border-gray-300 hover:text-gray-700"-->
-<!--                        >-->
-<!--                            Đánh giá (0)-->
-<!--                        </a>-->
+                        <a href="#" class="border-b-2 border-blue-500 px-1 py-4 text-sm text-xl font-semibold whitespace-nowrap"> Mô tả sản phẩm </a>
+                        <!--                        <a-->
+                        <!--                            href="#"-->
+                        <!--                            class="whitespace-nowrap border-b-2 border-transparent px-1 py-4 text-sm font-medium text-gray-500 hover:border-gray-300 hover:text-gray-700"-->
+                        <!--                        >-->
+                        <!--                            Thông số kỹ thuật-->
+                        <!--                        </a>-->
+                        <!--                        <a-->
+                        <!--                            href="#"-->
+                        <!--                            class="whitespace-nowrap border-b-2 border-transparent px-1 py-4 text-sm font-medium text-gray-500 hover:border-gray-300 hover:text-gray-700"-->
+                        <!--                        >-->
+                        <!--                            Đánh giá (0)-->
+                        <!--                        </a>-->
                     </nav>
                 </div>
                 <div class="py-4">

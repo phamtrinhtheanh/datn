@@ -91,11 +91,18 @@ class Cart
 
     public static function getProductsAndCartItems()
     {
-        $cartItems = self::getCartItems();
+        $cartItems = collect(self::getCartItems()); // Đảm bảo đây là Collection
 
-        $ids = Arr::pluck($cartItems, 'product_id');
+        if ($cartItems->isEmpty()) {
+            return [collect([]), collect([])];
+        }
+
+        $ids = $cartItems->pluck('product_id')->all(); // Trích ID sản phẩm
         $products = Product::whereIn('id', $ids)->get();
-        $cartItems = Arr::keyBy($cartItems, 'product_id');
-        return [$products, $cartItems];
+
+        // Convert cart items to keyed Collection for easier matching
+        $cartItemsKeyed = $cartItems->keyBy('product_id');
+
+        return [$products, $cartItemsKeyed];
     }
 }

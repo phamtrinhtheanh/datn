@@ -220,7 +220,7 @@ function submit() {
                 <div class="flex items-center justify-between border-t p-6">
                     <div class="text-muted-foreground text-sm">Đã chọn {{ selectedProducts.size }} items</div>
                     <div class="flex items-center gap-4">
-                        <div class="text-lg font-medium">Tông cộng: {{ formatVND(selectedTotal) }}</div>
+                        <div class="text-md font-medium">Tổng cộng: {{ formatVND(selectedTotal) }}</div>
                         <Button @click="submit" :disabled="selectedProducts.size === 0"> Checkout </Button>
                     </div>
                 </div>

@@ -66,7 +66,7 @@ const addToCart = (productId: number) => {
         <div class="grid grid-cols-2 gap-4 md:grid-cols-4 lg:grid-cols-5">
             <Card v-for="product in productsWithDiscount" :key="product.id" class="group transition-shadow hover:shadow-md py-2">
                 <Link :href="`/${product.slug}`" class="block">
-                    <div class="relative rounded-lg mx-2 mb-4 overflow-hidden">
+                    <div class="relative mx-2 mb-2 overflow-hidden rounded-lg border">
                         <img
                             :src="product.images[0]"
                             :alt="product.name"
@@ -74,18 +74,18 @@ const addToCart = (productId: number) => {
                         />
                     </div>
 
-                    <CardContent class="p-4 pb-2 pt-0">
-                        <h3 class="mb-3 line-clamp-2 min-h-[3em] text-base font-medium text-gray-800 dark:text-gray-100">
+                    <CardContent class="p-4 pt-0 pb-2">
+                        <h3 class="line-clamp-2 min-h-[3em] text-base font-medium">
                             {{ product.name }}
                         </h3>
 
-                        <p v-if="product.discount > 0" class="text-sm text-gray-500">
+                        <p v-if="product.discount > 0" class="text-sm text-muted-foreground">
                             <span class="line-through">
                                 {{ formatVND(product.line_price) }}
                             </span>
                             &nbsp;
                             <span>
-                                <Badge variant="outline" class="border-red-700 text-red-700"> -{{ product.discount }}% </Badge>
+                                <Badge variant="outline"> -{{ product.discount }}% </Badge>
                             </span>
                         </p>
 
@@ -93,12 +93,11 @@ const addToCart = (productId: number) => {
                             {{ formatVND(product.price) }}
                         </p>
                     </CardContent>
-
                 </Link>
 
-                <CardFooter class="flex justify-between p-4 pt-0">
-                    <p class="text-sm font-semibold text-green-500">Còn hàng</p>
-                    <Button @click="addToCart(product.id)" class="h-10 w-10 rounded-full bg-red-700">
+                <CardFooter class="flex justify-between px-4 pb-1 pt-0">
+                    <p class="text-sm font-semibold">Còn hàng</p>
+                    <Button @click="addToCart(product.id)" class="h-10 w-10 rounded-full">
                         <ShoppingCart class="h-4 w-4 text-white" />
                     </Button>
                 </CardFooter>

@@ -15,9 +15,11 @@ use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\FileUploadController;
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
-Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+Route::middleware(['auth', \App\Http\Middleware\AdminMiddleware::class])->group(function () {
+    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+});
 
-Route::middleware(['auth', 'verified'])->prefix('admin')->name('admin.')->group(function () {
+Route::middleware(['auth', 'verified', \App\Http\Middleware\AdminMiddleware::class])->prefix('admin')->name('admin.')->group(function () {
     Route::resource('categories', CategoryController::class);
     Route::resource('brands', BrandController::class);
     Route::resource('products', ProductController::class);
@@ -43,26 +45,11 @@ Route::middleware(['auth', 'verified'])->prefix('admin')->name('admin.')->group(
     Route::resource('promotions', \App\Http\Controllers\Admin\PromotionController::class);
 });
 
-// Cart routes
+
 Route::get('/cart', [CartController::class, 'view'])->name('cart');
 Route::post('/cart/add/{product}', [CartController::class, 'store'])->name('cart.add');
 Route::patch('/cart/update/{product}', [CartController::class, 'update'])->name('cart.update');
 Route::delete('/cart/delete/{product}', [CartController::class, 'delete'])->name('cart.delete');
-
-// Checkout routes
-Route::post('/checkout/store', [CheckoutController::class, 'store'])->name('checkout.store');
-Route::get('/checkout', [CheckoutController::class, 'index'])->name('checkout');
-Route::post('/checkout/payment', [CheckoutController::class, 'processPayment'])->name('checkout.payment');
-
-// Order routes
-Route::post('/order/create', [OrderController::class, 'create'])->name('order.create');
-Route::get('/vnpay-processing', function () {
-    return Inertia::render('VNPayProcess', [
-        'paymentUrl' => session('paymentUrl'),
-    ]);
-})->name('vnpay.processing');
-Route::get('/return-vnpay', [OrderController::class, 'handleReturn'])->name('payment.return');
-
 // Customer routes
 Route::middleware(['auth'])->group(function () {
     // Order management routes
@@ -71,6 +58,22 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/orders', [App\Http\Controllers\OrderController::class, 'create'])->name('orders.create');
     Route::delete('/orders/{order}', [App\Http\Controllers\OrderController::class, 'destroy'])->name('orders.destroy');
     Route::put('/orders/{order}/cancel', [App\Http\Controllers\OrderController::class, 'cancel'])->name('orders.cancel');
+    // Cart routes
+
+
+// Checkout routes
+    Route::post('/checkout/store', [CheckoutController::class, 'store'])->name('checkout.store');
+    Route::get('/checkout', [CheckoutController::class, 'index'])->name('checkout');
+    Route::post('/checkout/payment', [CheckoutController::class, 'processPayment'])->name('checkout.payment');
+
+// Order routes
+    Route::post('/order/create', [OrderController::class, 'create'])->name('order.create');
+    Route::get('/vnpay-processing', function () {
+        return Inertia::render('VNPayProcess', [
+            'paymentUrl' => session('paymentUrl'),
+        ]);
+    })->name('vnpay.processing');
+    Route::get('/return-vnpay', [OrderController::class, 'handleReturn'])->name('payment.return');
 });
 
 Route::get('{text}-p.{id}', [\App\Http\Controllers\ProductController::class, 'product'])

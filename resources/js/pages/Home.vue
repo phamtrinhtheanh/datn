@@ -7,6 +7,7 @@ import 'swiper/css';
 import 'swiper/css/autoplay';
 import 'swiper/css/navigation';
 import 'swiper/css/pagination';
+import { Link } from '@inertiajs/vue3'
 import { Autoplay, Navigation, Pagination } from 'swiper/modules';
 import { Swiper, SwiperSlide } from 'swiper/vue';
 import { ref } from 'vue';
@@ -130,8 +131,8 @@ const modules = [Autoplay, Pagination, Navigation];
             </div>
         </section>
 
-        <section class="bg-background my-4 pt-8">
-            <div class="bg-background container mx-auto border-b px-4 pb-4">
+        <section class="bg-background mt-4 pt-8">
+            <div class="bg-background container mx-auto border-b px-4">
                 <div class="mb-6 flex items-center justify-between">
                     <h2 class="text-2xl font-bold text-gray-800 dark:text-gray-200">Danh Mục Hàng</h2>
                     <div class="flex gap-2">
@@ -169,14 +170,14 @@ const modules = [Autoplay, Pagination, Navigation];
                         class="mySwiper swiper-fix-padding"
                     >
                         <SwiperSlide v-for="category in categories" :key="category.id">
-                            <a :href="category.slug" class="group flex flex-col items-center text-center">
+                            <Link :href="category.slug" class="group flex flex-col items-center text-center">
                                 <div class="bg-secondary mb-2 flex h-30 w-30 items-center justify-center overflow-hidden rounded-full">
                                     <img :src="category.icon" :alt="category.name" class="h-full w-full object-contain p-3" />
                                 </div>
                                 <span class="text-primary group-hover:text-primary-500 dark:group-hover:text-primary-400 text-lg font-semibold">{{
                                     category.name
                                 }}</span>
-                            </a>
+                            </Link>
                         </SwiperSlide>
                     </Swiper>
                 </div>

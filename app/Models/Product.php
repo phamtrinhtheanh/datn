@@ -7,7 +7,7 @@ use Laravel\Scout\Searchable;
 
 class Product extends Model
 {
-    use Searchable;
+//    use Searchable;
     protected $fillable = [
         'name',
         'slug',
@@ -57,5 +57,16 @@ class Product extends Model
             'category_name' => optional($this->category)->name,
             'created_at' => $this->created_at
         ];
+    }
+    protected static function boot(): void
+    {
+        parent::boot();
+
+        static::created(function ($product) {
+            if (empty($product->slug)) {
+                $product->slug = $product->name . '-p.' . $product->id;
+                $product->save();
+            }
+        });
     }
 }

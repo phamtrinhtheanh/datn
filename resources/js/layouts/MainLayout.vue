@@ -31,6 +31,6 @@ withDefaults(defineProps<Props>(), {
             <slot />
         </main>
 
-        <CustomerFooter class="mt-16" />
+        <CustomerFooter />
     </div>
 </template>
