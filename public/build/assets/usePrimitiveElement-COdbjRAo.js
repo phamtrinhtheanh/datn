@@ -1,0 +1,1 @@
+import{d as r}from"./useForwardExpose-B_zO9qyG.js";import{r as i,c as l}from"./app-DOxiRVIA.js";function c(){const e=i(),m=l(()=>{var t,n;return["#text","#comment"].includes((t=e.value)==null?void 0:t.$el.nodeName)?(n=e.value)==null?void 0:n.$el.nextElementSibling:r(e)});return{primitiveElement:e,currentElement:m}}export{c as u};

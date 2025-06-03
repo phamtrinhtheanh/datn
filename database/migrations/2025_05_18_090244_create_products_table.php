@@ -39,7 +39,7 @@ return new class extends Migration
                 'import_price' => 7300000,
                 'line_price' => 10490000,
                 'stock' => 600,
-                'images' => json_encode(['cpu/u51.jpg', 'cpu/u52.jpg', 'cpu/u53.jpg', 'cpu/u54.jpg']),
+                'images' => json_encode(['cpu/u51.jpg', 'cpu/u52.jpg', 'cpu/u53.jpg']),
                 'is_featured' => false,
                 'is_active' => true,
                 'specs' => json_encode([
@@ -69,7 +69,7 @@ return new class extends Migration
                 'import_price' => 10500000,
                 'line_price' => 14990000,
                 'stock' => 350,
-                'images' => json_encode(['cpu/u71.jpg', 'cpu/u72.jpg', 'cpu/u73.jpg', 'cpu/u74.jpg']),
+                'images' => json_encode(['cpu/u71.jpg', 'cpu/u72.jpg', 'cpu/u73.jpg']),
                 'is_featured' => true,
                 'is_active' => true,
                 'specs' => json_encode([
@@ -99,7 +99,7 @@ return new class extends Migration
                 'import_price' => 15500000,
                 'line_price' => 21990000,
                 'stock' => 200,
-                'images' => json_encode(['cpu/u91.jpg', 'cpu/u92.jpg', 'cpu/u93.jpg', 'cpu/u94.jpg']),
+                'images' => json_encode(['cpu/u91.jpg', 'cpu/u92.jpg', 'cpu/u93.jpg']),
                 'is_featured' => true,
                 'is_active' => true,
                 'specs' => json_encode([

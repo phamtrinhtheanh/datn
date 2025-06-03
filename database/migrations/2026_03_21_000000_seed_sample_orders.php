@@ -26,7 +26,7 @@ return new class extends Migration
         }
 
         // Tạo 100 đơn hàng mẫu
-        for ($i = 1; $i <= 10; $i++) {
+        for ($i = 1; $i <= 2; $i++) {
             // Tạo mã đơn hàng duy nhất bằng cách thêm timestamp
             $timestamp = Carbon::now()->timestamp;
             $orderNumber = 'ORD' . $timestamp . str_pad($i, 3, '0', STR_PAD_LEFT);
