@@ -10,7 +10,9 @@ import 'swiper/css/pagination';
 import { Link } from '@inertiajs/vue3'
 import { Autoplay, Navigation, Pagination } from 'swiper/modules';
 import { Swiper, SwiperSlide } from 'swiper/vue';
-import { ref } from 'vue';
+import { ref, watchEffect } from 'vue';
+import { toast } from 'vue-sonner';
+import type { SharedData } from '@/types/index';
 
 interface HomeCategory {
     id: number;
@@ -54,6 +56,8 @@ interface HomePageProps extends Record<string, any> {
     sidebarOpen: boolean;
 }
 
+const page = usePage<SharedData>();
+
 // Get categories from shared props with type assertion
 const categories = usePage<HomePageProps>().props.categories.data;
 const newArrivals = usePage<HomePageProps>().props.newArrivals;
@@ -65,35 +69,21 @@ const bannerImages = ref([
 ]);
 
 const modules = [Autoplay, Pagination, Navigation];
+
+watchEffect(() => {
+    if (page.props.flash?.success) {
+        toast.success(page.props.flash.success, {
+            class: 'text-lg'
+        });
+    }
+    if (page.props.flash?.error) {
+        toast.error(page.props.flash.error, {
+            class: 'text-lg'
+        });
+    }
+});
 </script>
 
-<style>
-.swiper-container {
-    width: 100%;
-    height: 100%;
-}
-
-.banner-image {
-    width: auto;
-    height: 100%;
-    object-fit: cover;
-}
-
-.swiper-pagination-bullet {
-    width: 24px;
-    height: 4px;
-    background-color: #a0aec0;
-    border-radius: 9999px;
-    opacity: 1;
-    margin: 0 6px !important;
-    transition: all 0.3s ease;
-}
-
-.swiper-pagination-bullet-active {
-    background-color: #1a202c;
-    transform: scale(1.2);
-}
-</style>
 
 <template>
     <Head title="Trang chủ" />
@@ -188,3 +178,31 @@ const modules = [Autoplay, Pagination, Navigation];
         </section>
     </CustomerLayout>
 </template>
+
+<style scoped>
+.swiper-container {
+    width: 100%;
+    height: 100%;
+}
+
+.banner-image {
+    width: auto;
+    height: 100%;
+    object-fit: cover;
+}
+
+.swiper-pagination-bullet {
+    width: 24px;
+    height: 4px;
+    background-color: #a0aec0;
+    border-radius: 9999px;
+    opacity: 1;
+    margin: 0 6px !important;
+    transition: all 0.3s ease;
+}
+
+.swiper-pagination-bullet-active {
+    background-color: #1a202c;
+    transform: scale(1.2);
+}
+</style>

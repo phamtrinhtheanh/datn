@@ -162,21 +162,22 @@ class CartController extends Controller
     }
 
     // Delete item using cart item ID (for logged in) or product ID (for guest/cookie)
-    public function delete(Request $request, $cartItemId)
+    public function delete(Request $request, $product)
     {
         $user = $request->user();
-
         if ($user) {
             // Find and delete by cart item ID for logged in user
-            $cartItem = CartItem::where('user_id', $user->id)->findOrFail($cartItemId);
+
+            $cartItem = CartItem::where(['user_id' => $user->id, 'product_id' => $product])->firstOrFail();
             $cartItem->delete();
+
         } else {
             // Find and remove by product ID in cookie items for guest
             $cartItems = Cart::getCookieCartItems();
             $removed = false;
             foreach ($cartItems as $index => $item) {
                 // Use product_id for lookup in cookie cart
-                if ($item['product_id'] == $cartItemId) {
+                if ($item['product_id'] == $product) {
                     array_splice($cartItems, $index, 1);
                     $removed = true;
                     break;
@@ -187,7 +188,7 @@ class CartController extends Controller
             }
         }
 
-        return redirect()->back(303); // Use 303 See Other to force GET request after DELETE
+        return redirect()->back()->with('success', 'Sản phẩm đã được xóa khỏi giỏ hàng.');
     }
 
     // Assuming you have a checkout method

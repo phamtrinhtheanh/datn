@@ -17,6 +17,7 @@ withDefaults(defineProps<Props>(), {
     breadcrumbs: () => [],
     query: () => '',
 });
+
 </script>
 
 <template>

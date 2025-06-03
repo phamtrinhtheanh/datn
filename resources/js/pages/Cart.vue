@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, reactive } from 'vue';
+import { computed, reactive, watchEffect } from 'vue';
 import CustomerLayout from '@/layouts/MainLayout.vue';
 import { Link, router, usePage } from '@inertiajs/vue3';
 import type { PageProps as InertiaPageProps } from '@inertiajs/core';
@@ -10,6 +10,7 @@ import { Input } from '@/components/ui/input';
 import { Minus, Plus, Trash2 } from 'lucide-vue-next';
 import { formatVND } from '@/lib/utils';
 import { useDebounceFn } from '@vueuse/core';
+import { toast } from 'vue-sonner';
 
 interface CartItem {
     product_id: number;
@@ -122,6 +123,19 @@ function submit() {
         items: selectedItems,
     });
 }
+
+watchEffect(() => {
+    if (page.props.flash?.success) {
+        toast.success(page.props.flash.success, {
+            class: 'text-lg'
+        });
+    }
+    if (page.props.flash?.error) {
+        toast.error(page.props.flash.error, {
+            class: 'text-lg'
+        });
+    }
+});
 </script>
 
 <template>

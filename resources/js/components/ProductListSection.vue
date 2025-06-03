@@ -55,12 +55,12 @@ const addToCart = (productId: number) => {
         preserveScroll: true,
         preserveState: true,
         onSuccess: () => {
-            alert('Thêm vào giỏ hàng thành công');
             window.dispatchEvent(new CustomEvent('cart-updated'));
         },
         onError: (errors) => console.error('Lỗi khi thêm vào giỏ hàng', errors),
     });
 };
+
 </script>
 
 <template>

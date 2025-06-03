@@ -47,10 +47,7 @@ Route::middleware(['auth', 'verified', \App\Http\Middleware\AdminMiddleware::cla
 });
 
 
-Route::get('/cart', [CartController::class, 'view'])->name('cart');
-Route::post('/cart/add/{product}', [CartController::class, 'store'])->name('cart.add');
-Route::patch('/cart/update/{product}', [CartController::class, 'update'])->name('cart.update');
-Route::delete('/cart/delete/{product}', [CartController::class, 'delete'])->name('cart.delete');
+
 // Customer routes
 Route::middleware(['auth'])->group(function () {
     // Order management routes
@@ -91,6 +88,9 @@ Route::get('{text}-c.{id}', [\App\Http\Controllers\ProductController::class, 'pr
 
 Route::get('/search', [SearchController::class, 'search'])->name('search');
 Route::get('/invoices/{order}/view', [InvoiceController::class, 'show'])->name('invoices.view');
-
+Route::get('/cart', [CartController::class, 'view'])->name('cart');
+Route::post('/cart/add/{product}', [CartController::class, 'store'])->name('cart.add');
+Route::patch('/cart/update/{product}', [CartController::class, 'update'])->name('cart.update');
+Route::delete('/cart/delete/{product}', [CartController::class, 'delete'])->name('cart.delete');
 require __DIR__.'/settings.php';
 require __DIR__.'/auth.php';
