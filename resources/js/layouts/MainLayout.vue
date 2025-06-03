@@ -21,8 +21,6 @@ withDefaults(defineProps<Props>(), {
 
 <template>
     <div class="bg-secondary dark:bg-secondary/20">
-        <Head :title="'Trang chủ'" />
-
         <Toaster richColors position="top-right" />
 
         <CustomerHeader :query="query"/>

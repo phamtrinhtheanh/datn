@@ -72,7 +72,6 @@ const addToCart = (productId: number) => {
         preserveScroll: true,
         preserveState: true,
         onSuccess: () => {
-            alert('Thêm vào giỏ hàng thành công');
             window.dispatchEvent(new CustomEvent('cart-updated'));
         },
         onError: (errors) => console.error('Lỗi khi thêm vào giỏ hàng', errors)
@@ -194,26 +193,28 @@ watchEffect(() => {
                 <!-- Product Info Section -->
                 <div class="col-span-3">
                     <div class="rounded-xl px-6">
-                        <h1 class="mb-2 text-2xl font-bold text-gray-900">{{ product.name }}</h1>
-
+                        <h1 class="text-2xl font-bold text-gray-900">{{ product.name }}</h1>
                         <div class="items-center mb-4 flex">
-                            <span class="text-lg font-medium">{{ averageRating }}</span>
-                            <StarRating :rating="1" :max-rating="1" :star-size="14" :read-only="true"
-                                        :show-rating="false" class="ml-1 pb-1" />
-                            <span class="ml-2 text-sm text-gray-500">({{ totalReviews }} đánh giá)</span>
+                            <div v-if="averageRating != 0" class="flex">
+                                <span class="text-lg font-medium">{{ averageRating }}</span>
+                                <StarRating :rating="1" :max-rating="1" :star-size="14" :read-only="true"
+                                            :show-rating="false" class="ml-1 pb-1" />
+                            </div>
+                            <span class="text-sm text-gray-500">({{ totalReviews }} đánh giá)</span>
                             <span class="mx-2 text-gray-300">|</span>
                             <span class="text-base text-green-600">Còn hàng</span>
                         </div>
 
                         <div class="mb-6">
                             <div class="flex items-center">
-                                <span class="text-3xl font-bold text-red-600"> {{ formatVND(product.price) }}</span>
-                                <span class="ml-3 text-lg text-gray-500 line-through">{{ formatVND(product.line_price)
+                                <span class=" text-lg text-gray-500 line-through">{{ formatVND(product.line_price)
                                     }}</span>
                                 <span class="ml-3 rounded bg-red-100 px-2 py-0.5 text-xs font-medium text-red-800">
                                     -{{ Math.round((1 - product.price / product.line_price) * 100) }}%
                                 </span>
                             </div>
+                            <span class="text-3xl font-bold text-red-600"> {{ formatVND(product.price) }}</span>
+
                         </div>
                         <div class="mb-6 flex items-center">
                             <span class="mr-4 text-sm font-medium text-gray-900">Số lượng:</span>
@@ -230,7 +231,9 @@ watchEffect(() => {
                                 </button>
                             </div>
                         </div>
-
+                        <div class="mb-6 flex items-center">
+                            <span class="text-sm">Còn {{product.stock}} sản phẩm</span>
+                        </div>
                         <div class="mb-4 flex flex-wrap gap-3">
                             <Button class="h-16 flex-1 flex-col rounded-md py-6 max-w-xl font-medium"
                                     @click="addToCart(product.id)">

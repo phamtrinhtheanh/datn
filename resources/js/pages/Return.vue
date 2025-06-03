@@ -13,7 +13,7 @@ const props = defineProps<{
 <template>
     <Head :title="paymentStatus === 'success' ? 'Payment Success' : 'Payment Failed'" />
     <CustomerLayout>
-        <div class="flex items-center justify-center mt-6">
+        <div class="flex items-center justify-center my-6">
             <div class="w-full max-w-md rounded-lg bg-white border p-8 shadow-md">
                 <div v-if="paymentStatus === 'success'" class="text-center">
                     <div class="mb-4 text-5xl text-green-500">✓</div>
@@ -27,8 +27,8 @@ const props = defineProps<{
                     </div>
 
                    <div class="flex gap-6 justify-center">
-                       <Link href="/" class="mt-6 inline-block rounded bg-red-700 px-4 py-2 text-white hover:bg-red-600"> Về trang chủ </Link>
-                       <Link href="/don-hang" class="mt-6 inline-block border border-red-700 rounded bg-transparent text-red-700 px-4 py-2 hover:shadow-md"> Đơn mua </Link>
+                       <Link href="/" class="mt-6 border rounded px-4 py-2"> Về trang chủ </Link>
+                       <Link href="/don-hang" class="mt-6  border bg-primary rounded text-primary-foreground px-4 py-2 hover:shadow-md"> Đơn mua </Link>
                    </div>
                 </div>
 

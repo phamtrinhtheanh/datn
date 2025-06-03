@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\CartItem;
 use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\Product;
@@ -314,6 +315,7 @@ class OrderController extends Controller
                     ]);
                 }
                 $order->status = 'confirmed';
+                $this->handleQuantity($order);
                 $order->save();
                 return inertia('Return', [
                     'paymentStatus' => $inputData['vnp_ResponseCode'] === '00' ? 'success' : 'failed',
@@ -345,7 +347,51 @@ class OrderController extends Controller
                 'amount' => isset($inputData['vnp_Amount']) ? $inputData['vnp_Amount'] / 100 : 0,
             ]);
         }
+    }
 
+    public function handleQuantity(Order $order)
+    {
+        $orderId = $order->id;
+        $userId = $order->user_id;
+
+        // Lấy tất cả OrderItems của đơn hàng
+        $orderItems = OrderItem::where('order_id', $orderId)->get();
+
+        // Tính tổng số lượng theo từng product_id (gộp các item cùng product_id)
+        $productQuantity = [];
+        $productIds = [];
+
+        foreach ($orderItems as $item) {
+            if (!isset($productQuantity[$item->product_id])) {
+                $productQuantity[$item->product_id] = 0;
+            }
+            $productQuantity[$item->product_id] += $item->quantity;
+            $productIds[] = $item->product_id;
+        }
+
+        // Loại bỏ trùng product_id
+        $productIds = array_unique($productIds);
+
+        DB::transaction(function () use ($productQuantity, $productIds, $userId) {
+            // Lấy sản phẩm kèm số lượng hiện tại
+            $products = Product::whereIn('id', $productIds)->lockForUpdate()->get();
+
+            foreach ($products as $product) {
+                // Kiểm tra số lượng đủ để trừ
+                if ($product->stock < $productQuantity[$product->id]) {
+                    throw new \Exception("Sản phẩm {$product->name} không đủ số lượng trong kho.");
+                }
+
+                // Trừ số lượng
+                $product->stock -= $productQuantity[$product->id];
+                $product->save();
+            }
+
+            // Xoá các CartItem có cùng product_id của user
+            CartItem::where('user_id', $userId)
+                ->whereIn('product_id', $productIds)
+                ->delete();
+        });
     }
     protected function parseVnpayDate($vnpayDate)
     {

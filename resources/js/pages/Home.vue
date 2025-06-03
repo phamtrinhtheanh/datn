@@ -60,8 +60,8 @@ const newArrivals = usePage<HomePageProps>().props.newArrivals;
 
 const bannerImages = ref([
     { id: 1, src: '/banner/main.png', alt: 'Banner 1' },
-    { id: 2, src: '/banner/main.png', alt: 'Banner 2' },
-    { id: 3, src: '/banner/main.png', alt: 'Banner 3' },
+    { id: 2, src: '/banner/sub1.jpg', alt: 'Banner 2' },
+    { id: 3, src: '/banner/sub2.jpg', alt: 'Banner 3' },
 ]);
 
 const modules = [Autoplay, Pagination, Navigation];
@@ -96,7 +96,7 @@ const modules = [Autoplay, Pagination, Navigation];
 </style>
 
 <template>
-    <Head title="The Anh Computer" />
+    <Head title="Trang chủ" />
     <CustomerLayout>
         <section class="container mx-auto mt-4 px-4">
             <div class="flex flex-col gap-4 md:gap-6 lg:flex-row lg:gap-4">
@@ -122,17 +122,17 @@ const modules = [Autoplay, Pagination, Navigation];
 
                 <div class="flex h-auto flex-col gap-4 lg:h-full lg:w-1/3">
                     <div class="flex-1 overflow-hidden rounded-xl bg-white dark:bg-gray-900">
-                        <img class="h-full w-full object-cover" src="/banner/main.png" alt="small banner 1" />
+                        <img class="h-full w-full object-cover" src="/banner/sub2.jpg" alt="small banner 1" />
                     </div>
                     <div class="flex-1 overflow-hidden rounded-xl bg-white dark:bg-gray-900">
-                        <img class="h-full w-full object-cover" src="/banner/main.png" alt="small banner 2" />
+                        <img class="h-full w-full object-cover" src="/banner/sub1.jpg" alt="small banner 2" />
                     </div>
                 </div>
             </div>
         </section>
 
         <section class="bg-background mt-4 pt-8">
-            <div class="bg-background container mx-auto border-b px-4">
+            <div class="bg-background container mx-auto border-b px-4 pb-8">
                 <div class="mb-6 flex items-center justify-between">
                     <h2 class="text-2xl font-bold text-gray-800 dark:text-gray-200">Danh Mục Hàng</h2>
                     <div class="flex gap-2">

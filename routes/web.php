@@ -3,6 +3,7 @@
 use App\Http\Controllers\Admin\BannerController;
 use App\Http\Controllers\Admin\BrandController;
 use App\Http\Controllers\Admin\CategoryController;
+use App\Http\Controllers\InvoiceController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\Admin\ProductController;
 use App\Http\Controllers\HomeController;
@@ -19,7 +20,6 @@ Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::middleware(['auth', \App\Http\Middleware\AdminMiddleware::class])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 });
-
 Route::middleware(['auth', 'verified', \App\Http\Middleware\AdminMiddleware::class])->prefix('admin')->name('admin.')->group(function () {
     Route::resource('categories', CategoryController::class);
     Route::resource('brands', BrandController::class);
@@ -69,16 +69,17 @@ Route::middleware(['auth'])->group(function () {
 
 // Order routes
     Route::post('/order/create', [OrderController::class, 'create'])->name('order.create');
-    Route::get('/vnpay-processing', function () {
-        return Inertia::render('VNPayProcess', [
-            'paymentUrl' => session('paymentUrl'),
-        ]);
-    })->name('vnpay.processing');
     Route::get('/return-vnpay', [OrderController::class, 'handleReturn'])->name('payment.return');
 
     Route::post('/reviews', [ReviewController::class, 'store'])->name('reviews.store');
     Route::get('/products/{product}/reviews', [ReviewController::class, 'getProductReviews'])->name('reviews.product');
 });
+
+Route::get('/vnpay-processing', function () {
+    return Inertia::render('VNPayProcess', [
+        'paymentUrl' => session('paymentUrl'),
+    ]);
+})->name('vnpay.processing');
 
 Route::get('{text}-p.{id}', [\App\Http\Controllers\ProductController::class, 'product'])
     ->where('id', '[0-9]+')
@@ -89,6 +90,7 @@ Route::get('{text}-c.{id}', [\App\Http\Controllers\ProductController::class, 'pr
     ->where('text', '.*');
 
 Route::get('/search', [SearchController::class, 'search'])->name('search');
+Route::get('/invoices/{order}/view', [InvoiceController::class, 'show'])->name('invoices.view');
 
 require __DIR__.'/settings.php';
 require __DIR__.'/auth.php';

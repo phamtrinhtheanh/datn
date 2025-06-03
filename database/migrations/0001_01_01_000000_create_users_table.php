@@ -43,6 +43,13 @@ return new class extends Migration
             'password' => Hash::make('123456'),
             'role' => 'admin'
         ]);
+        DB::table('users')->insert([
+            'id' => 1,
+            'name' => 'Thế anh',
+            'email' => 'phamtrinhtheanhgpt@gmail.com',
+            'password' => Hash::make('123456'),
+            'role' => 'customer'
+        ]);
     }
 
     /**
