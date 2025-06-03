@@ -7,7 +7,7 @@ use Laravel\Scout\Searchable;
 
 class Product extends Model
 {
-//    use Searchable;
+    use Searchable;
     protected $fillable = [
         'name',
         'slug',
@@ -50,7 +50,7 @@ class Product extends Model
             'slug' => $this->slug,
             'price' => $this->price,
             'line_price' => $this->line_price,
-            'images' => $this->getFirstImage(),
+            'images' => $this->images[0],
             'specs' => is_array($this->specs) ? $this->specs : json_decode($this->specs, true),
             'in_stock' => $this->stock > 0,
             'brand_name' => optional($this->brand)->name,

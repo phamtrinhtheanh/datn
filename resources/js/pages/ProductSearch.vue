@@ -77,7 +77,7 @@ const pageLinks = computed(() => {
 <template>
     <Head title="The Anh Computer" />
     <CustomerLayout :breadcrumbs="breadcrumbs" :query="query">
-        <div class="container mx-auto space-y-4 px-4">
+        <div class="container mx-auto space-y-4 px-4 pb-4">
 <!--            <div class="flex rounded-lg bg-white p-4">-->
 <!--                <div class="flex items-center gap-3">-->
 <!--                    <Label class="text-base font-bold">Sắp xếp theo:</Label>-->
