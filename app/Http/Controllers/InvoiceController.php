@@ -28,7 +28,6 @@ class InvoiceController extends Controller
         return $pdf->download("hoa-don-{$order->order_number}.pdf");
     }
 
-    // Tách phần dựng dữ liệu ra dùng chung
     private function buildInvoiceObject(Order $order): object
     {
         $subtotal = $order->items->sum(fn($i) => $i->price * $i->quantity);
@@ -38,7 +37,7 @@ class InvoiceController extends Controller
             'status' => $order->status,
             'customer_name' => $order->customer_name,
             'customer_address' => $order->address,
-            'customer_city' => '', // nếu có
+            'customer_city' => '',
             'customer_email' => $order->email,
             'number' => $order->order_number,
             'date' => $order->created_at->format('d/m/Y'),
