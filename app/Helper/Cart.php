@@ -65,7 +65,7 @@ class Cart
         $cartItems = self::getCookieCartItems();
         $newCartItems = [];
         foreach ($cartItems as $cartItem) {
-            // Check if the record already exists in the database
+
             $existingCartItem = CartItem::where([
                 'user_id' => $request->user()->id,
                 'product_id' => $cartItem['product_id'],
@@ -86,6 +86,7 @@ class Cart
             // Insert the new cart items into the database
             CartItem::insert($newCartItems);
         }
+        Cookie::queue(Cookie::forget('cart_items'));
     }
 
 

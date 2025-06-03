@@ -14,21 +14,19 @@ class CartController extends Controller
     {
         $user = $request->user();
 
+        // Giỏ hàng của user đã đăng nhập
         if ($user) {
-            // For logged-in users, fetch cart items with product data
+            Cart::moveCartItemsIntoDb();
             $cartItems = CartItem::where('user_id', $user->id)
                 ->get();
 
             $products = $cartItems->map(function ($item) {
-                // Flatten product data and add quantity
                 $productData = $item->product->toArray();
                 $productData['quantity'] = $item->quantity;
-                // Ensure images are an array of paths
                 if (isset($productData['images']) && is_string($productData['images'])) {
                     $productData['images'] = json_decode($productData['images'], true);
                 }
                 $productData['images'] = $productData['images'] ?? [];
-                // Add cart item ID as 'id' for frontend reference
                 $productData['cart_item_id'] = $item->id;
                 return $productData;
             });
@@ -36,9 +34,19 @@ class CartController extends Controller
             $total = $products->sum(function ($product) {
                 return $product['price'] * $product['quantity'];
             });
-
-        } else {
-            // For guests
+            return Inertia::render('Cart', [
+                'cart' => [
+                    'data' => [
+                        'items' => $cartItems->toArray(),
+                        'products' => $products->values()->toArray(),
+                        'total' => $total,
+                        'count' => $products->sum('quantity')
+                    ]
+                ]
+            ]);
+        }
+        // Giỏ hàng khách chưa đăng nhập
+        else {
             $cartData = Cart::getProductsAndCartItems();
             $products = $cartData[0]->map(function ($product) use ($cartData) {
                 $cartItem = $cartData[1]->get($product->id);
@@ -49,7 +57,7 @@ class CartController extends Controller
                     $productData['images'] = json_decode($productData['images'], true);
                 }
                 $productData['images'] = $productData['images'] ?? [];
-                $productData['cart_item_id'] = $product->id; // fallback ID for guests
+                $productData['cart_item_id'] = $product->id;
                 return $productData;
             });
 
@@ -57,11 +65,10 @@ class CartController extends Controller
                 return $product['price'] * $product['quantity'];
             });
 
-            // Pass data with consistent structure
             return Inertia::render('Cart', [
                 'cart' => [
                     'data' => [
-                        'items' => $cartData[1]->values()->toArray(), // Convert to array for consistency
+                        'items' => $cartData[1]->values()->toArray(),
                         'products' => $products->values()->toArray(),
                         'total' => $total,
                         'count' => $products->sum('quantity')
@@ -69,18 +76,6 @@ class CartController extends Controller
                 ]
             ]);
         }
-
-        // Pass data with consistent structure for logged in users
-        return Inertia::render('Cart', [
-            'cart' => [
-                'data' => [
-                    'items' => $cartItems->toArray(),
-                    'products' => $products->values()->toArray(),
-                    'total' => $total,
-                    'count' => $products->sum('quantity')
-                ]
-            ]
-        ]);
     }
 
     // Assuming you have store, update, delete methods correctly implemented as per previous code
