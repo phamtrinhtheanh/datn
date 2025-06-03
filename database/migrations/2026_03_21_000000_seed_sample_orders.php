@@ -25,13 +25,15 @@ return new class extends Migration
             return;
         }
 
-        // Tạo 100 đơn hàng mẫu
-        for ($i = 1; $i <= 2; $i++) {
+        // Tạo 20 đơn hàng mẫu
+        for ($i = 1; $i <= 20; $i++) {
             // Tạo mã đơn hàng duy nhất bằng cách thêm timestamp
             $timestamp = Carbon::now()->timestamp;
             $orderNumber = 'ORD' . $timestamp . str_pad($i, 3, '0', STR_PAD_LEFT);
 
-            // Tạo đơn hàng
+            $createdAt = Carbon::now()
+                ->subDays(rand(0, 30));
+
             $order = Order::create([
                 'user_id' => $user->id,
                 'order_number' => $orderNumber,
@@ -43,9 +45,10 @@ return new class extends Migration
                 'payment_method' => rand(0, 1) ? 'vnpay' : 'cod',
                 'status' => $this->getRandomStatus(),
                 'total' => 0, // Sẽ cập nhật sau
-                'created_at' => Carbon::now()->subDays(rand(0, 30))->subHours(rand(0, 23))->subMinutes(rand(0, 59)),
-                'updated_at' => Carbon::now(),
+                'created_at' => $createdAt,
+                'updated_at' => $createdAt,
             ]);
+
 
             // Tạo các sản phẩm trong đơn hàng
             $total = 0;

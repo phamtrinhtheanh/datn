@@ -44,7 +44,7 @@ return new class extends Migration
             'role' => 'admin'
         ]);
         DB::table('users')->insert([
-            'id' => 1,
+            'id' => 2,
             'name' => 'Thế anh',
             'email' => 'phamtrinhtheanhgpt@gmail.com',
             'password' => Hash::make('123456'),

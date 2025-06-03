@@ -103,7 +103,7 @@ const categoryChartData = {
         </template>
 
         <div class="py-12">
-            <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
+            <div class=" mx-auto sm:px-6 lg:px-8">
                 <div class="mb-6">
                     <Select v-model="period" @update:model-value="handlePeriodChange">
                         <SelectTrigger class="w-[180px]">
