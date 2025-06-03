@@ -3,8 +3,8 @@ import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Table, TableBody, TableCell, TableRow } from '@/components/ui/table';
-import { useCurrency } from '@/composables/useCurrency';
-import CustomerLayout from '@/layouts/CustomerLayout.vue';
+import { formatVND } from '@/lib/utils';
+import CustomerLayout from '@/layouts/MainLayout.vue';
 import { type BreadcrumbItem } from '@/types';
 import axios from 'axios';
 import { ChevronLeft, ChevronRight, RotateCcw, Trash } from 'lucide-vue-next';
@@ -16,12 +16,12 @@ const breadcrumbs: BreadcrumbItem[] = [
     { title: 'Xây dựng cấu hình', href: '/buildpc' },
 ];
 
-const { formatVND } = useCurrency();
+
 
 // Danh sách linh kiện mặc định
 const defaultParts = [
-    'CPU - BỘ XỬ LÝ',
     'MAINBOARD - BO MẠCH CHỦ',
+    'CPU - BỘ XỬ LÝ',
     'RAM - BỘ NHỚ TRONG',
     'VGA - CARD MÀN HÌNH',
     'Ổ CỨNG',
@@ -156,135 +156,137 @@ watch(searchQuery, () => {
 
 <template>
     <CustomerLayout :breadcrumbs="breadcrumbs">
-        <h2 class="mb-4 text-center text-xl font-extrabold">Build PC - Tự chọn linh kiện xây dựng cấu hình</h2>
-        <div class="flex justify-between p-4">
-            <Button class="bg-gray-800 text-base font-bold" @click="resetBuild">
-                Làm mới
-                <RotateCcw class="ml-2" />
-            </Button>
-            <div class="text-base font-bold text-red-700">
-                Chi phí dự tính: <span>{{ formatVND(totalPrice) }}</span>
+        <div class="container mx-auto">
+            <h2 class="mb-4 text-center text-xl font-extrabold">Build PC - Tự chọn linh kiện xây dựng cấu hình</h2>
+            <div class="flex justify-between p-4">
+                <Button class="bg-gray-800 text-base font-bold" @click="resetBuild">
+                    Làm mới
+                    <RotateCcw class="ml-2" />
+                </Button>
+                <div class="text-base font-bold text-red-700">
+                    Chi phí dự tính: <span>{{ formatVND(totalPrice) }}</span>
+                </div>
             </div>
-        </div>
-        <div class="p-4">
-            <Table class="border">
-                <TableBody>
-                    <TableRow v-for="(title, i) in defaultParts" :key="i" class="border">
-                        <TableCell class="w-96 border text-base font-bold"> {{ i + 1 }}. {{ title }}</TableCell>
-                        <TableCell>
-                            <div v-if="selectedParts[i]" class="flex items-center gap-4">
-                                <div class="w-32 p-2">
-                                    <a :href="selectedParts[i]!.slug">
-                                        <img
-                                            :src="`storage` + selectedParts[i]!.image"
-                                            alt="Product image"
-                                            class="aspect-square w-24 object-contain"
-                                        />
-                                    </a>
-                                </div>
-                                <div class="flex-1">
-                                    <div class="text-lg font-bold">{{ selectedParts[i]!.name }}</div>
-                                    <div class="text-base font-semibold text-gray-600">{{ selectedParts[i]!.status }}</div>
-                                    <div class="text-base font-bold text-red-700">
-                                        Giá build: {{ formatVND(selectedParts[i]!.price) }}
+            <div class="p-4">
+                <Table class="border">
+                    <TableBody>
+                        <TableRow v-for="(title, i) in defaultParts" :key="i" class="border">
+                            <TableCell class="w-96 border text-base font-bold"> {{ i + 1 }}. {{ title }}</TableCell>
+                            <TableCell>
+                                <div v-if="selectedParts[i]" class="flex items-center gap-4">
+                                    <div class="w-32 p-2">
+                                        <a :href="selectedParts[i]!.slug">
+                                            <img
+                                                :src="selectedParts[i]!.image"
+                                                alt="Product image"
+                                                class="aspect-square w-24 object-contain"
+                                            />
+                                        </a>
+                                    </div>
+                                    <div class="flex-1">
+                                        <div class="text-lg font-bold">{{ selectedParts[i]!.name }}</div>
+                                        <div class="text-base font-semibold text-gray-600">{{ selectedParts[i]!.status }}</div>
+                                        <div class="text-base font-bold text-red-700">
+                                            Giá build: {{ formatVND(selectedParts[i]!.price) }}
+                                        </div>
+                                    </div>
+                                    <div class="text-sm">{{ selectedParts[i]!.quantity }}</div>
+                                    <div class="text-base font-bold text-red-600">
+                                        Tổng: {{ formatVND(selectedParts[i]!.price * selectedParts[i]!.quantity) }}
+                                    </div>
+                                    <div class="gap flex">
+                                        <Button variant="link" size="sm" @click="openSelectionDialog(i)">
+                                            <RotateCcw class="h-4 w-4" />
+                                        </Button>
+                                        <Button variant="link" size="sm" @click="handleDelete(i)">
+                                            <Trash class="h-4 w-4" />
+                                        </Button>
                                     </div>
                                 </div>
-                                <div class="text-sm">{{ selectedParts[i]!.quantity }}</div>
-                                <div class="text-base font-bold text-red-600">
-                                    Tổng: {{ formatVND(selectedParts[i]!.price * selectedParts[i]!.quantity) }}
-                                </div>
-                                <div class="gap flex">
-                                    <Button variant="link" size="sm" @click="openSelectionDialog(i)">
-                                        <RotateCcw class="h-4 w-4" />
-                                    </Button>
-                                    <Button variant="link" size="sm" @click="handleDelete(i)">
-                                        <Trash class="h-4 w-4" />
-                                    </Button>
-                                </div>
-                            </div>
-                            <Button v-else class="bg-gray-800 text-base font-semibold" @click="openSelectionDialog(i)">
-                                Chọn <span class="text-md">{{ title }}</span>
-                            </Button>
-                        </TableCell>
-                    </TableRow>
-                </TableBody>
-            </Table>
-        </div>
+                                <Button v-else class="text-base font-semibold py-5 my-2 mx-4" @click="openSelectionDialog(i)">
+                                    Chọn <span class="text-md">{{ title }}</span>
+                                </Button>
+                            </TableCell>
+                        </TableRow>
+                    </TableBody>
+                </Table>
+            </div>
 
-        <!-- Dialog chọn linh kiện -->
-        <Dialog v-model:open="isDialogOpen" @open="searchQuery = ''">
-            <DialogContent class="max-h-screen sm:max-w-[1000px]">
-                <DialogHeader>
-                    <DialogTitle>Chọn {{ currentCategory }}</DialogTitle>
-                </DialogHeader>
+            <!-- Dialog chọn linh kiện -->
+            <Dialog v-model:open="isDialogOpen" @open="searchQuery = ''">
+                <DialogContent class="max-h-screen sm:max-w-[1000px]">
+                    <DialogHeader>
+                        <DialogTitle>Chọn {{ currentCategory }}</DialogTitle>
+                    </DialogHeader>
 
-                <div class="mt-4 flex gap-2">
-                    <Input v-model="searchQuery" placeholder="Tìm kiếm sản phẩm..." />
-                </div>
-
-                <div v-if="isLoading" class="flex justify-center py-8">
-                    <div class="h-12 w-12 animate-spin rounded-full border-b-2 border-t-2 border-gray-900"></div>
-                </div>
-
-                <div v-else class="mt-4 max-h-[500px] overflow-y-auto">
-                    <Table>
-                        <TableBody>
-                            <TableRow v-for="product in searchResults" :key="product.id" class="cursor-pointer hover:bg-gray-100">
-                                <TableCell class="w-32">
-                                    <a :href="product.slug">
-                                        <img :src="`storage` + product.images[0]" alt="Product image" class="aspect-square w-full object-contain" />
-                                    </a>
-                                </TableCell>
-                                <TableCell class="pl-6">
-                                    <div class="text-base font-semibold">{{ product.name }}</div>
-                                    <div class="text-md font-medium text-gray-800">
-                                        {{ product.stock > 0 ? 'Còn hàng' : 'Hết hàng' }}
-                                    </div>
-                                    <div class="text-base font-bold text-red-700">Giá: {{ formatVND(product.price) }}</div>
-                                </TableCell>
-                                <TableCell class="text-right">
-                                    <Button
-                                        variant="outline"
-                                        class="border-red-700 text-base font-semibold text-red-700"
-                                        @click="selectProduct(product)"
-                                    >
-                                        Thêm vào cấu hình
-                                    </Button>
-                                </TableCell>
-                            </TableRow>
-
-                            <TableRow v-if="searchResults.length === 0">
-                                <TableCell colspan="3" class="py-8 text-center text-gray-500">
-                                    {{ searchQuery ? 'Không tìm thấy sản phẩm phù hợp' : 'Nhập từ khóa để tìm kiếm' }}
-                                </TableCell>
-                            </TableRow>
-                        </TableBody>
-                    </Table>
-                </div>
-
-                <!-- Pagination -->
-                <div v-if="totalPages > 1" class="mt-4 flex items-center justify-between">
-                    <div class="text-sm text-gray-600">Trang {{ currentPage }} / {{ totalPages }}</div>
-                    <div class="flex gap-2">
-                        <Button variant="outline" size="sm" :disabled="currentPage === 1" @click="goToPage(currentPage - 1)">
-                            <ChevronLeft class="h-4 w-4" />
-                        </Button>
-                        <Button
-                            v-for="page in Math.min(5, totalPages)"
-                            :key="page"
-                            variant="outline"
-                            size="sm"
-                            :class="{ 'bg-gray-200': currentPage === page }"
-                            @click="goToPage(page)"
-                        >
-                            {{ page }}
-                        </Button>
-                        <Button variant="outline" size="sm" :disabled="currentPage === totalPages" @click="goToPage(currentPage + 1)">
-                            <ChevronRight class="h-4 w-4" />
-                        </Button>
+                    <div class="mt-4 flex gap-2">
+                        <Input v-model="searchQuery" placeholder="Tìm kiếm sản phẩm..." />
                     </div>
-                </div>
-            </DialogContent>
-        </Dialog>
+
+                    <div v-if="isLoading" class="flex justify-center py-8">
+                        <div class="h-12 w-12 animate-spin rounded-full border-b-2 border-t-2 border-gray-900"></div>
+                    </div>
+
+                    <div v-else class="mt-4 max-h-[500px] overflow-y-auto">
+                        <Table>
+                            <TableBody>
+                                <TableRow v-for="product in searchResults" :key="product.id" class="cursor-pointer hover:bg-gray-100">
+                                    <TableCell class="w-32">
+                                        <a :href="product.slug">
+                                            <img :src="product.images[0]" alt="Product image" class="aspect-square w-full object-contain" />
+                                        </a>
+                                    </TableCell>
+                                    <TableCell class="pl-6">
+                                        <div class="text-base font-semibold">{{ product.name }}</div>
+                                        <div class="text-md font-medium text-gray-800">
+                                            {{ product.stock > 0 ? 'Còn hàng' : 'Hết hàng' }}
+                                        </div>
+                                        <div class="text-base font-bold text-red-700">Giá: {{ formatVND(product.price) }}</div>
+                                    </TableCell>
+                                    <TableCell class="text-right">
+                                        <Button
+                                            variant="outline"
+                                            class="border-red-700 text-base font-semibold text-red-700"
+                                            @click="selectProduct(product)"
+                                        >
+                                            Thêm vào cấu hình
+                                        </Button>
+                                    </TableCell>
+                                </TableRow>
+
+                                <TableRow v-if="searchResults.length === 0">
+                                    <TableCell colspan="3" class="py-8 text-center text-gray-500">
+                                        {{ searchQuery ? 'Không tìm thấy sản phẩm phù hợp' : 'Nhập từ khóa để tìm kiếm' }}
+                                    </TableCell>
+                                </TableRow>
+                            </TableBody>
+                        </Table>
+                    </div>
+
+                    <!-- Pagination -->
+                    <div v-if="totalPages > 1" class="mt-4 flex items-center justify-between">
+                        <div class="text-sm text-gray-600">Trang {{ currentPage }} / {{ totalPages }}</div>
+                        <div class="flex gap-2">
+                            <Button variant="outline" size="sm" :disabled="currentPage === 1" @click="goToPage(currentPage - 1)">
+                                <ChevronLeft class="h-4 w-4" />
+                            </Button>
+                            <Button
+                                v-for="page in Math.min(5, totalPages)"
+                                :key="page"
+                                variant="outline"
+                                size="sm"
+                                :class="{ 'bg-gray-200': currentPage === page }"
+                                @click="goToPage(page)"
+                            >
+                                {{ page }}
+                            </Button>
+                            <Button variant="outline" size="sm" :disabled="currentPage === totalPages" @click="goToPage(currentPage + 1)">
+                                <ChevronRight class="h-4 w-4" />
+                            </Button>
+                        </div>
+                    </div>
+                </DialogContent>
+            </Dialog>
+        </div>
     </CustomerLayout>
 </template>

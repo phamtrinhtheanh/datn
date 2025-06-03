@@ -3,6 +3,7 @@
 use App\Http\Controllers\Admin\BannerController;
 use App\Http\Controllers\Admin\BrandController;
 use App\Http\Controllers\Admin\CategoryController;
+use App\Http\Controllers\BuildController;
 use App\Http\Controllers\InvoiceController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\Admin\ProductController;
@@ -92,5 +93,8 @@ Route::get('/cart', [CartController::class, 'view'])->name('cart');
 Route::post('/cart/add/{product}', [CartController::class, 'store'])->name('cart.add');
 Route::patch('/cart/update/{product}', [CartController::class, 'update'])->name('cart.update');
 Route::delete('/cart/delete/{product}', [CartController::class, 'delete'])->name('cart.delete');
+
+Route::get('/buildpc', [BuildController::class, 'build'])->name('build');
+Route::get('/build/part', [BuildController::class, 'part'])->name('build.part');
 require __DIR__.'/settings.php';
 require __DIR__.'/auth.php';
