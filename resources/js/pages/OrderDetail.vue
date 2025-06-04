@@ -176,11 +176,16 @@ const formatVND = (price: number) =>
             </div>
 
             <!-- Back Button -->
-            <div class="mt-6">
+            <div class="mt-6 flex justify-between">
                 <Link :href="route('orders.index')">
                     <Button variant="outline" class="flex items-center gap-2">
                         <ArrowLeft class="w-4 h-4" />
                         Quay lại danh sách đơn hàng
+                    </Button>
+                </Link>
+                <Link :href="route('invoices.view', { order: order.id })">
+                    <Button variant="outline" class="flex items-center gap-2">
+                        Xem hóa đơn
                     </Button>
                 </Link>
             </div>
